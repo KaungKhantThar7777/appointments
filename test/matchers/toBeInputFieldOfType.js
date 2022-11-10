@@ -14,11 +14,22 @@ export const toBeInputFieldOfType = (received, expectedType) => {
       }
     );
 
-  const actualHint = () => `Actual type: ${printReceived(received.type)}`;
+  const receivedText = () => {
+    if (!received) {
+      return "element was not found";
+    }
+    if (received?.tagName !== "INPUT") {
+      return `<${received?.tagName.toLowerCase()}>`;
+    }
+    return `<input type=${received.type}>`;
+  };
+
+  const actualHint = () => `Actual type: ${receivedText()}`;
+
   const message = () => [sourceHint(), actualHint()].join("\n\n");
 
   return {
-    pass,
+    pass: Boolean(pass),
     message,
   };
 };
