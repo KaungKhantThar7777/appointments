@@ -56,3 +56,7 @@ export const change = (target, value) => {
 
   act(() => target.dispatchEvent(event));
 };
+
+export const labelFor = (fieldName) => {
+  return element(`label[for="${fieldName}"]`);
+};

@@ -37,7 +37,7 @@ export const CustomForm = ({ original, onSubmit }) => {
       <label htmlFor="phoneNo">Phone number</label>
       <input
         id="phoneNo"
-        type="tel"
+        type="text"
         name="phoneNo"
         value={customer.phoneNo || ""}
         onChange={handleChange}

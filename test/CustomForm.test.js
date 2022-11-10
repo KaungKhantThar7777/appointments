@@ -6,6 +6,7 @@ import {
   field,
   form,
   initializeReactContainer,
+  labelFor,
   render,
   submit,
   submitButton,
@@ -34,29 +35,7 @@ describe("CustomForm", () => {
     };
     it("renders as a text box", () => {
       render(<CustomForm original={blankCustomer} />);
-
-      expect(field(fieldName)).not.toBeNull();
-
-      expect(field(fieldName).tagName).toEqual("INPUT");
-
-      expect(field(fieldName).type).toEqual("text");
-    });
-  };
-
-  const itRendersAsATelBox = (fieldName) => {
-    const blankCustomer = {
-      firstName: "",
-      lastName: "",
-      phoneNo: "",
-    };
-    it("renders as a text box", () => {
-      render(<CustomForm original={blankCustomer} />);
-
-      expect(field(fieldName)).not.toBeNull();
-
-      expect(field(fieldName).tagName).toEqual("INPUT");
-
-      expect(field(fieldName).type).toEqual("tel");
+      expect(field(fieldName)).toBeInputFieldOfType("text");
     });
   };
 
@@ -73,15 +52,14 @@ describe("CustomForm", () => {
   const itRendersALabel = (fieldName, text) => {
     it("renders a label ", () => {
       render(<CustomForm original={blankCustomer} />);
-      const label = element(`label[for="${fieldName}"]`);
-      expect(label).not.toBeNull();
+
+      expect(labelFor(fieldName)).not.toBeNull();
     });
 
     it(`render '${text}' as the label content`, () => {
       render(<CustomForm original={blankCustomer} />);
 
-      const label = element(`label[for="${fieldName}"]`);
-      expect(label).toContainText(text);
+      expect(labelFor(fieldName)).toContainText(text);
     });
   };
 
@@ -150,7 +128,7 @@ describe("CustomForm", () => {
   });
 
   describe("phone number field", () => {
-    itRendersAsATelBox("phoneNo");
+    itRendersAsATextBox("phoneNo");
     itIncludesTheExistingValue("phoneNo", "234234");
     itRendersALabel("phoneNo", "Phone number");
     itAssignAnIdThatMatchTheLabelId("phoneNo");
