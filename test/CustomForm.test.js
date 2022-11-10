@@ -26,75 +26,135 @@ describe("CustomForm", () => {
     expect(form()).not.toBeNull();
   });
 
-  it("renders the first name field as a text box", () => {
-    render(<CustomForm original={blankCustomer} />);
+  const itRendersAsATextBox = (fieldName) => {
+    const blankCustomer = {
+      firstName: "",
+      lastName: "",
+      phoneNo: "",
+    };
+    it("renders as a text box", () => {
+      render(<CustomForm original={blankCustomer} />);
 
-    expect(field("firstName")).not.toBeNull();
+      expect(field(fieldName)).not.toBeNull();
 
-    expect(field("firstName").tagName).toEqual("INPUT");
+      expect(field(fieldName).tagName).toEqual("INPUT");
 
-    expect(field("firstName").type).toEqual("text");
+      expect(field(fieldName).type).toEqual("text");
+    });
+  };
+
+  const itRendersAsATelBox = (fieldName) => {
+    const blankCustomer = {
+      firstName: "",
+      lastName: "",
+      phoneNo: "",
+    };
+    it("renders as a text box", () => {
+      render(<CustomForm original={blankCustomer} />);
+
+      expect(field(fieldName)).not.toBeNull();
+
+      expect(field(fieldName).tagName).toEqual("INPUT");
+
+      expect(field(fieldName).type).toEqual("tel");
+    });
+  };
+
+  const itIncludesTheExistingValue = (fieldName, existingValue) => {
+    it("includes the existing value", () => {
+      const customer = { [fieldName]: existingValue };
+
+      render(<CustomForm original={customer} />);
+
+      expect(field(fieldName).value).toEqual(existingValue);
+    });
+  };
+
+  const itRendersALabel = (fieldName, text) => {
+    it("renders a label ", () => {
+      render(<CustomForm original={blankCustomer} />);
+      const label = element(`label[for="${fieldName}"]`);
+      expect(label).not.toBeNull();
+    });
+
+    it(`render '${text}' as the label content`, () => {
+      render(<CustomForm original={blankCustomer} />);
+
+      const label = element(`label[for="${fieldName}"]`);
+      expect(label).toContainText(text);
+    });
+  };
+
+  const itAssignAnIdThatMatchTheLabelId = (fieldName) => {
+    it("assigns an id that matches the label id", () => {
+      render(<CustomForm original={blankCustomer} />);
+
+      expect(field(fieldName).id).toEqual(fieldName);
+    });
+  };
+
+  const itSubmitExistingValue = (fieldName, existingValue) => {
+    it("submit existing value when submitted", () => {
+      expect.hasAssertions();
+
+      const customer = { [fieldName]: existingValue };
+      render(
+        <CustomForm
+          original={customer}
+          onSubmit={({ firstName }) => {
+            expect(firstName).toBe(existingValue);
+          }}
+        />
+      );
+
+      submit(form());
+    });
+  };
+  const itSubmitNewValue = (fieldName, existingValue) => {
+    it("submit new value", () => {
+      // expect.hasAssertions();
+
+      const customer = {
+        firstName: "Ashley",
+        lastName: "Jame",
+        phoneNo: "1111",
+      };
+      render(
+        <CustomForm
+          original={customer}
+          onSubmit={(customer) => {
+            expect(customer[fieldName]).toBe(existingValue);
+          }}
+        />
+      );
+      change(field(fieldName), existingValue);
+      click(submitButton());
+    });
+  };
+  describe("first name field", () => {
+    itRendersAsATextBox("firstName");
+    itIncludesTheExistingValue("firstName", "Kaung");
+    itRendersALabel("firstName", "First name");
+    itAssignAnIdThatMatchTheLabelId("firstName");
+    itSubmitExistingValue("firstName");
+    itSubmitNewValue("firstName", "Kaung");
   });
 
-  it("includes the existing value for the first name", () => {
-    const customer = { firstName: "Ashley" };
-
-    render(<CustomForm original={customer} />);
-
-    expect(field("firstName").value).toEqual("Ashley");
+  describe("last name field", () => {
+    itRendersAsATextBox("lastName");
+    itIncludesTheExistingValue("lastName", "Khant Thar");
+    itRendersALabel("lastName", "Last name");
+    itAssignAnIdThatMatchTheLabelId("lastName");
+    itSubmitExistingValue("lastName");
+    itSubmitNewValue("lastName", "Khant Thar");
   });
 
-  it("renders a label for the first name field", () => {
-    render(<CustomForm original={blankCustomer} />);
-
-    const label = element('label[for="firstName"]');
-    expect(label).not.toBeNull();
-  });
-
-  it("renders 'First name' as the first name label content", () => {
-    render(<CustomForm original={blankCustomer} />);
-
-    const label = element('label[for="firstName"]');
-
-    expect(label.textContent).toEqual("First name");
-  });
-
-  it("assigns an id that matches the label id to the first name field", () => {
-    render(<CustomForm original={blankCustomer} />);
-
-    expect(field("firstName").id).toEqual("firstName");
-  });
-
-  it("renders a submit button", () => {
-    render(<CustomForm original={blankCustomer} />);
-
-    expect(submitButton()).not.toBeNull();
-  });
-
-  it("saves existing first name when submitted", () => {
-    expect.hasAssertions();
-
-    const customer = { firstName: "Ashley" };
-    render(<CustomForm original={customer} onSubmit={() => {}} />);
-
-    const event = submit(form());
-
-    expect(event.defaultPrevented).toBe(true);
-  });
-
-  it("saves new first name when submitted", () => {
-    expect.hasAssertions();
-
-    const customer = { firstName: "Ashley" };
-    render(
-      <CustomForm
-        original={customer}
-        onSubmit={({ firstName }) => {
-          expect(firstName).toBe("Jasmine");
-        }}
-      />
-    );
-    change(field("firstName"), "Jasmine");
-    click(submitButton());
+  describe("phone number field", () => {
+    itRendersAsATelBox("phoneNo");
+    itIncludesTheExistingValue("phoneNo", "234234");
+    itRendersALabel("phoneNo", "Phone number");
+    itAssignAnIdThatMatchTheLabelId("phoneNo");
+    itSubmitExistingValue("phoneNo");
+    itSubmitNewValue("phoneNo", "5555");
   });
 });

@@ -2,10 +2,11 @@ import React, { useState } from "react";
 
 export const CustomForm = ({ original, onSubmit }) => {
   const [customer, setCustomer] = useState(original);
-  const handleChangeFirstName = ({ target }) => {
+
+  const handleChange = ({ target: { name, value } }) => {
     setCustomer((customer) => ({
       ...customer,
-      firstName: target.value,
+      [name]: value,
     }));
   };
   const handleSubmit = (event) => {
@@ -20,10 +21,27 @@ export const CustomForm = ({ original, onSubmit }) => {
         type="text"
         id="firstName"
         name="firstName"
-        value={customer.firstName}
-        onChange={handleChangeFirstName}
+        value={customer.firstName || ""}
+        onChange={handleChange}
       />
 
+      <label htmlFor="lastName">Last name</label>
+      <input
+        id="lastName"
+        type="text"
+        name="lastName"
+        value={customer.lastName || ""}
+        onChange={handleChange}
+      />
+
+      <label htmlFor="phoneNo">Phone number</label>
+      <input
+        id="phoneNo"
+        type="tel"
+        name="phoneNo"
+        value={customer.phoneNo || ""}
+        onChange={handleChange}
+      />
       <input type="submit" value="Add" />
     </form>
   );
