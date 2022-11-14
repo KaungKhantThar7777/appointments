@@ -88,8 +88,7 @@ describe("AppointmentForm", () => {
   describe("service field", () => {
     it("renders as a select box", () => {
       render(<AppointmentForm {...testProps} />);
-      expect(field("service")).not.toBeNull();
-      expect(field("service").tagName).toEqual("SELECT");
+      expect(field("service")).toBeElementWithTag("select");
     });
 
     it("lists all salon services", () => {
