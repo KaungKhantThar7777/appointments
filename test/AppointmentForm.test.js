@@ -9,6 +9,9 @@ import {
   elements,
   submitButton,
   click,
+  labelFor,
+  submit,
+  change,
 } from "./reactTestExtensions";
 import { AppointmentForm } from "../src/AppointmentForm";
 
@@ -89,6 +92,47 @@ describe("AppointmentForm", () => {
     it("renders as a select box", () => {
       render(<AppointmentForm {...testProps} />);
       expect(field("service")).toBeElementWithTag("select");
+    });
+
+    it("renders a label", () => {
+      render(<AppointmentForm {...testProps} />);
+      expect(labelFor("service")).not.toBeNull();
+    });
+
+    it("assign an id that match label id", () => {
+      render(<AppointmentForm {...testProps} />);
+
+      expect(field("service").id).toBe("service");
+    });
+
+    it("save existing value when submitted", () => {
+      expect.hasAssertions();
+      render(
+        <AppointmentForm
+          {...testProps}
+          original={{ service: "Cut" }}
+          onSubmit={({ service }) => {
+            expect(service).toBe("Cut");
+          }}
+        />
+      );
+
+      click(submitButton());
+    });
+
+    it("save new value when submitted", () => {
+      const newValue = "Blow-dry";
+      expect.hasAssertions();
+      render(
+        <AppointmentForm
+          {...testProps}
+          onSubmit={({ service }) => {
+            expect(service).toBe(newValue);
+          }}
+        />
+      );
+      change(field("service"), newValue);
+      click(submitButton());
     });
 
     it("lists all salon services", () => {

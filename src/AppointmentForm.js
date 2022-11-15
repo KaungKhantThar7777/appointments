@@ -127,6 +127,14 @@ export const AppointmentForm = ({
     }));
   }, []);
 
+  const handleSelectBoxChange = ({ target: { name, value } }) => {
+    console.log({ name, value });
+    setAppointment((appointment) => ({
+      ...appointment,
+      [name]: value,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -134,7 +142,13 @@ export const AppointmentForm = ({
   };
   return (
     <form id="appointment" onSubmit={handleSubmit}>
-      <select name="service" value={appointment?.service || ""}>
+      <label htmlFor="service">Salon service</label>
+      <select
+        id="service"
+        name="service"
+        value={appointment?.service || ""}
+        onChange={handleSelectBoxChange}
+      >
         <option />
         {selectableServices.map((s) => (
           <option key={s}>{s}</option>
