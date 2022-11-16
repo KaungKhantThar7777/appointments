@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Appointment, AppointmentsDayView } from "../src/AppointmentsDayView";
+import { today, todayAt } from "./builders/time";
 import {
   click,
   initializeReactContainer,
@@ -83,28 +84,23 @@ describe("Appointment", () => {
   });
 
   it("renders appointment time", () => {
-    const today = new Date();
-
     const customer = { time: "12:00" };
-    render(
-      <Appointment customer={customer} startsAt={today.setHours(12, 0)} />
-    );
+    render(<Appointment customer={customer} startsAt={todayAt(12)} />);
 
     expect(document.body).toContainText("12:00");
   });
 });
 
 describe("AppointmentsDayView", () => {
-  const today = new Date();
   const twoAppointments = [
     {
-      startsAt: today.setHours(12, 0),
+      startsAt: todayAt(12),
       customer: {
         firstName: "Ashley",
       },
     },
     {
-      startsAt: today.setHours(13, 0),
+      startsAt: todayAt(13),
       customer: {
         firstName: "Jordan",
       },

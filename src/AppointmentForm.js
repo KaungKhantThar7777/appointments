@@ -111,6 +111,8 @@ const TimeSlotTable = ({
 
 export const AppointmentForm = ({
   selectableServices,
+  selectableStylists,
+  serviceStylists,
   original,
   salonOpensAt,
   salonClosesAt,
@@ -128,7 +130,6 @@ export const AppointmentForm = ({
   }, []);
 
   const handleSelectBoxChange = ({ target: { name, value } }) => {
-    console.log({ name, value });
     setAppointment((appointment) => ({
       ...appointment,
       [name]: value,
@@ -140,6 +141,16 @@ export const AppointmentForm = ({
 
     onSubmit(appointment);
   };
+
+  const stylistsForService = appointment?.service
+    ? serviceStylists[appointment.service]
+    : selectableStylists;
+
+  const timeSlotsForStylist = appointment?.stylist
+    ? availableTimeSlots.filter((timeSlot) => {
+        return timeSlot.stylists.includes(appointment.stylist);
+      })
+    : availableTimeSlots;
   return (
     <form id="appointment" onSubmit={handleSubmit}>
       <label htmlFor="service">Salon service</label>
@@ -155,11 +166,19 @@ export const AppointmentForm = ({
         ))}
       </select>
 
+      <label htmlFor="stylist">Stylist</label>
+      <select id="stylist" name="stylist" onChange={handleSelectBoxChange}>
+        <option />
+        {stylistsForService.map((s) => (
+          <option key={s}>{s}</option>
+        ))}
+      </select>
+
       <TimeSlotTable
         salonOpensAt={salonOpensAt}
         salonClosesAt={salonClosesAt}
         today={today}
-        availableTimeSlots={availableTimeSlots}
+        availableTimeSlots={timeSlotsForStylist}
         checkedTimeSlot={appointment?.startsAt}
         handleChange={handleStartsAtChange}
       />
@@ -181,4 +200,13 @@ AppointmentForm.defaultProps = {
     "Cut & beard trim",
     "Extensions",
   ],
+  selectableStylists: ["Sam", "Joe", "Jane", "Philis", "Aglena"],
+  serviceStylists: {
+    Cut: ["Ashley", "Jo", "Pat", "Sam"],
+    "Blow-dry": ["Ashley", "Jo", "Pat", "Sam"],
+    "Cut & color": ["Ashley", "Jo"],
+    "Beard trim": ["Pat", "Sam"],
+    "Cut & beard trim": ["Pat", "Sam"],
+    Extensions: ["Ashley", "Pat"],
+  },
 };

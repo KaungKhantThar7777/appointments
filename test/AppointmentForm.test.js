@@ -21,14 +21,19 @@ describe("AppointmentForm", () => {
   });
 
   const availableTimeSlots = [
-    { startsAt: todayAt(9) },
-    { startsAt: todayAt(9, 30) },
+    { startsAt: todayAt(9), stylists: ["Aslhey", "Joe"] },
+    { startsAt: todayAt(9, 30), stylists: ["Ashley"] },
   ];
   const selectableServices = ["Cut", "Blow-dry"];
-
+  const selectableStylists = ["Sam", "Jo"];
   const testProps = {
     today,
     selectableServices,
+    selectableStylists,
+    serviceStylists: {
+      Cut: ["Sam", "Jo"],
+      "Blow-dry": ["Jo"],
+    },
     availableTimeSlots,
   };
   const labelsOfAllOptions = (element) =>
@@ -64,7 +69,7 @@ describe("AppointmentForm", () => {
     click(submitButton());
   });
 
-  it("saves new value when submitter", () => {
+  it("saves new value when submitted", () => {
     expect.hasAssertions();
     const appointment = {
       startsAt: availableTimeSlots[0].startsAt,
@@ -88,73 +93,126 @@ describe("AppointmentForm", () => {
     return options.find((option) => option.textContent === textContent);
   };
 
-  describe("service field", () => {
+  const itRendersAsASelectBox = (fieldName) => {
     it("renders as a select box", () => {
       render(<AppointmentForm {...testProps} />);
-      expect(field("service")).toBeElementWithTag("select");
+      expect(field(fieldName)).toBeElementWithTag("select");
     });
+  };
 
+  const itRendersALabel = (fieldName, text) => {
     it("renders a label", () => {
       render(<AppointmentForm {...testProps} />);
-      expect(labelFor("service")).not.toBeNull();
+      expect(labelFor(fieldName)).not.toBeNull();
     });
 
     it("assign an id that match label id", () => {
       render(<AppointmentForm {...testProps} />);
 
-      expect(field("service").id).toBe("service");
+      expect(field(fieldName).id).toBe(fieldName);
     });
-
+    it(`render ${text} as label content`, () => {
+      render(<AppointmentForm {...testProps} />);
+      expect(labelFor(fieldName)).toContainText(text);
+    });
+  };
+  const itSaveExistingValueWhenSubmitted = (fieldName, existingValue) => {
     it("save existing value when submitted", () => {
       expect.hasAssertions();
       render(
         <AppointmentForm
           {...testProps}
-          original={{ service: "Cut" }}
-          onSubmit={({ service }) => {
-            expect(service).toBe("Cut");
+          original={{ [fieldName]: existingValue }}
+          onSubmit={(props) => {
+            expect(props[fieldName]).toBe(existingValue);
           }}
         />
       );
 
       click(submitButton());
     });
+  };
 
+  const itSubmitsNewValue = (fieldName, value) => {
     it("save new value when submitted", () => {
-      const newValue = "Blow-dry";
       expect.hasAssertions();
       render(
         <AppointmentForm
           {...testProps}
-          onSubmit={({ service }) => {
-            expect(service).toBe(newValue);
+          onSubmit={(props) => {
+            expect(props[fieldName]).toBe(value);
           }}
         />
       );
-      change(field("service"), newValue);
+      change(field(fieldName), value);
       click(submitButton());
     });
+  };
 
-    it("lists all salon services", () => {
+  const itListsAllOptionsValue = (fieldName, options) => {
+    it(`lists all ${fieldName}s`, () => {
       render(<AppointmentForm {...testProps} />);
 
-      expect(labelsOfAllOptions(field("service"))).toEqual(
-        expect.arrayContaining(selectableServices)
+      expect(labelsOfAllOptions(field(fieldName))).toEqual(
+        expect.arrayContaining(options)
       );
     });
+  };
 
+  const itHasBlankValueForFirstOption = (fieldName) => {
     it("has a blank value as the first value", () => {
       render(<AppointmentForm {...testProps} />);
-      const firstOption = field("service").childNodes[0];
+      const firstOption = field(fieldName).childNodes[0];
       expect(firstOption.value).toBe("");
     });
+  };
 
+  const itPreseletExistingValue = (fieldName, existingValue) => {
     it("pre-selects the existing value", () => {
-      const appointment = { service: "Blow-dry" };
+      const appointment = { [fieldName]: existingValue };
       render(<AppointmentForm {...testProps} original={appointment} />);
 
-      const option = findOption(field("service"), "Blow-dry");
+      const option = findOption(field(fieldName), existingValue);
       expect(option.selected).toBe(true);
+    });
+  };
+  describe("service field", () => {
+    itRendersAsASelectBox("service");
+    itRendersALabel("service", "Salon service");
+    itSaveExistingValueWhenSubmitted("serivce", "Cut");
+    itSubmitsNewValue("service", "Blow-dry");
+    itListsAllOptionsValue("service", selectableServices);
+    itHasBlankValueForFirstOption("service");
+    itPreseletExistingValue("service", "Cut");
+  });
+
+  describe("stylist field", () => {
+    itRendersAsASelectBox("stylist");
+    itRendersALabel("stylist", "Stylist");
+    itHasBlankValueForFirstOption("stylist");
+    itListsAllOptionsValue("stylist", selectableStylists);
+    itSaveExistingValueWhenSubmitted("stylist", "Sam");
+    itSubmitsNewValue("stylist", "Jo");
+
+    it("lists only stylists that can perform the selected services", () => {
+      const selectableServices = ["1", "2"];
+      const selectableStylists = ["A", "B", "C"];
+      const serviceStylists = {
+        1: ["A", "B"],
+      };
+
+      const appointment = { service: "1" };
+      render(
+        <AppointmentForm
+          {...testProps}
+          original={appointment}
+          selectableServices={selectableServices}
+          selectableStylists={selectableStylists}
+          serviceStylists={serviceStylists}
+        />
+      );
+
+      expect(labelsOfAllOptions(field("stylist"))).toEqual(["", "A", "B"]);
     });
   });
 
@@ -200,6 +258,7 @@ describe("AppointmentForm", () => {
         const td = elements("td");
         return td.indexOf(el.parentElement);
       });
+
     it("renders radio buttons in the correct table cell positions", () => {
       const availableTimeSlots = [
         {
@@ -249,6 +308,29 @@ describe("AppointmentForm", () => {
       render(<AppointmentForm {...testProps} original={appointment} />);
 
       expect(startsAtField(1).checked).toEqual(true);
+    });
+
+    it("filters appointments by selected stylist", () => {
+      const availableTimeSlots = [
+        {
+          startsAt: todayAt(9),
+          stylists: ["Ashley"],
+        },
+        {
+          startsAt: todayAt(9, 30),
+          stylists: ["Jo"],
+        },
+      ];
+
+      render(
+        <AppointmentForm
+          {...testProps}
+          availableTimeSlots={availableTimeSlots}
+        />
+      );
+
+      change(field("stylist"), "Jo");
+      expect(cellsWithRadioButton()).toEqual([7]);
     });
   });
 });
