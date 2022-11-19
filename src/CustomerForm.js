@@ -27,19 +27,28 @@ export const CustomerForm = ({
   };
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const result = await global.fetch("/customers", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(customer),
-    });
+    try {
+      const result = await global.fetch(
+        "/customers",
+        {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(customer),
+        }
+      );
 
-    if (result.ok) {
-      const customerWithId = await result.json();
-      onSave(customerWithId);
-    } else {
+      if (result.ok) {
+        const customerWithId = await result.json();
+        onSave(customerWithId);
+      } else {
+        console.log("here has error");
+        setHasError(true);
+      }
+    } catch (error) {
+      console.log(error);
       setHasError(true);
     }
   };
