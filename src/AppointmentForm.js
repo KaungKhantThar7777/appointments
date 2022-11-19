@@ -1,31 +1,59 @@
 import React from "react";
 
-const timeIncrements = (totalSlots, startTime, increment) => {
+const timeIncrements = (
+  totalSlots,
+  startTime,
+  increment
+) => {
   return Array(totalSlots)
     .fill([startTime])
-    .reduce((acc, _, i) => acc.concat([startTime + i * increment]));
+    .reduce((acc, _, i) =>
+      acc.concat([startTime + i * increment])
+    );
 };
-const dailyTimeSlots = (salonOpensAt, salonClosesAt) => {
-  const totalSlots = (salonClosesAt - salonOpensAt) * 2;
-  const startTime = new Date().setHours(salonOpensAt, 0, 0, 0);
+const dailyTimeSlots = (
+  salonOpensAt,
+  salonClosesAt
+) => {
+  const totalSlots =
+    (salonClosesAt - salonOpensAt) * 2;
+  const startTime = new Date().setHours(
+    salonOpensAt,
+    0,
+    0,
+    0
+  );
   const increment = 30 * 60 * 1000;
 
-  return timeIncrements(totalSlots, startTime, increment);
+  return timeIncrements(
+    totalSlots,
+    startTime,
+    increment
+  );
 };
 
 const weeklyDateValues = (startDate) => {
-  const midnight = new Date(startDate).setHours(0, 0, 0, 0);
+  const midnight = new Date(startDate).setHours(
+    0,
+    0,
+    0,
+    0
+  );
   const increment = 24 * 60 * 60 * 1000;
 
   return timeIncrements(7, midnight, increment);
 };
 const toShortDate = (timeStamp) => {
-  const [day, _, dayOfMonth] = new Date(timeStamp).toDateString().split(" ");
+  const [day, _, dayOfMonth] = new Date(timeStamp)
+    .toDateString()
+    .split(" ");
   return `${day} ${dayOfMonth}`;
 };
 
 const toTimeValue = (timestamp) => {
-  const time = new Date(timestamp).toTimeString().substring(0, 5);
+  const time = new Date(timestamp)
+    .toTimeString()
+    .substring(0, 5);
   return time;
 };
 
@@ -46,12 +74,16 @@ const RadioButtonIfAvailable = ({
   checkedTimeSlot,
   handleChange,
 }) => {
-  const startsAt = mergeDateAndTimeSlot(date, timeSlot);
+  const startsAt = mergeDateAndTimeSlot(
+    date,
+    timeSlot
+  );
   const isChecked = checkedTimeSlot === startsAt;
 
   if (
     availableTimeSlots.some(
-      (availableTimeSlot) => availableTimeSlot.startsAt === startsAt
+      (availableTimeSlot) =>
+        availableTimeSlot.startsAt === startsAt
     )
   ) {
     return (
@@ -87,14 +119,19 @@ const TimeSlotTable = ({
         </tr>
       </thead>
       <tbody>
-        {dailyTimeSlots(salonOpensAt, salonClosesAt).map((timeSlot) => (
+        {dailyTimeSlots(
+          salonOpensAt,
+          salonClosesAt
+        ).map((timeSlot) => (
           <tr key={timeSlot}>
             <th>{toTimeValue(timeSlot)}</th>
 
             {dates.map((date) => (
               <td key={date}>
                 <RadioButtonIfAvailable
-                  availableTimeSlots={availableTimeSlots}
+                  availableTimeSlots={
+                    availableTimeSlots
+                  }
                   date={date}
                   timeSlot={timeSlot}
                   checkedTimeSlot={checkedTimeSlot}
@@ -120,26 +157,42 @@ export const AppointmentForm = ({
   availableTimeSlots,
   onSubmit,
 }) => {
-  const [appointment, setAppointment] = React.useState(original);
+  const [appointment, setAppointment] =
+    React.useState(original);
 
-  const handleStartsAtChange = React.useCallback(({ target: { value } }) => {
-    setAppointment((appointment) => ({
-      ...appointment,
-      startsAt: parseInt(value),
-    }));
-  }, []);
+  const handleStartsAtChange = React.useCallback(
+    ({ target: { value } }) => {
+      setAppointment((appointment) => ({
+        ...appointment,
+        startsAt: parseInt(value),
+      }));
+    },
+    []
+  );
 
-  const handleSelectBoxChange = ({ target: { name, value } }) => {
+  const handleSelectBoxChange = ({
+    target: { name, value },
+  }) => {
     setAppointment((appointment) => ({
       ...appointment,
       [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const result = await fetch("/appointments", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(appointment),
+    });
 
-    onSubmit(appointment);
+    if (result.ok) {
+      onSubmit(appointment);
+    }
   };
 
   const stylistsForService = appointment?.service
@@ -148,7 +201,9 @@ export const AppointmentForm = ({
 
   const timeSlotsForStylist = appointment?.stylist
     ? availableTimeSlots.filter((timeSlot) => {
-        return timeSlot.stylists.includes(appointment.stylist);
+        return timeSlot.stylists.includes(
+          appointment.stylist
+        );
       })
     : availableTimeSlots;
   return (
@@ -167,7 +222,11 @@ export const AppointmentForm = ({
       </select>
 
       <label htmlFor="stylist">Stylist</label>
-      <select id="stylist" name="stylist" onChange={handleSelectBoxChange}>
+      <select
+        id="stylist"
+        name="stylist"
+        onChange={handleSelectBoxChange}
+      >
         <option />
         {stylistsForService.map((s) => (
           <option key={s}>{s}</option>
@@ -200,7 +259,13 @@ AppointmentForm.defaultProps = {
     "Cut & beard trim",
     "Extensions",
   ],
-  selectableStylists: ["Sam", "Joe", "Jane", "Philis", "Aglena"],
+  selectableStylists: [
+    "Sam",
+    "Joe",
+    "Jane",
+    "Philis",
+    "Aglena",
+  ],
   serviceStylists: {
     Cut: ["Ashley", "Jo", "Pat", "Sam"],
     "Blow-dry": ["Ashley", "Jo", "Pat", "Sam"],

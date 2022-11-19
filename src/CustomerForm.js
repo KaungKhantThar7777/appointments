@@ -43,15 +43,15 @@ export const CustomerForm = ({
       if (result.ok) {
         const customerWithId = await result.json();
         onSave(customerWithId);
+        setHasError(false);
       } else {
-        console.log("here has error");
         setHasError(true);
       }
     } catch (error) {
-      console.log(error);
       setHasError(true);
     }
   };
+
   return (
     <form onSubmit={handleSubmit}>
       <Error hasError={hasError} />

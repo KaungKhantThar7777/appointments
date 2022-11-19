@@ -291,4 +291,31 @@ describe("CustomerForm", () => {
       "error occurred"
     );
   });
+
+  it("pass when second submitted time", async () => {
+    fetch.mockRejectedValueOnce(fetchResponseError());
+
+    const saveFn = jest.fn();
+    render(
+      <CustomerForm
+        original={blankCustomer}
+        onSave={saveFn}
+      />
+    );
+
+    await clickAndWait(submitButton());
+
+    expect(element("[role=alert]")).toContainText(
+      "error occurred"
+    );
+
+    // change field to valid
+
+    await clickAndWait(submitButton());
+
+    expect(element("[role=alert]")).not.toContainText(
+      "error occurred"
+    );
+    expect(saveFn).toHaveBeenCalledTimes(1);
+  });
 });
