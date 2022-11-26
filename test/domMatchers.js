@@ -6,6 +6,7 @@ import {
   toBeRenderedWithProps,
   toBeFirstRenderedWithProps,
 } from "./matchers/toBeRenderedWithProps";
+import { toBeRendered } from "./matchers/toBeRendered";
 
 expect.extend({
   toHaveClass,
@@ -14,4 +15,5 @@ expect.extend({
   toBeElementWithTag,
   toBeRenderedWithProps,
   toBeFirstRenderedWithProps,
+  toBeRendered,
 });
