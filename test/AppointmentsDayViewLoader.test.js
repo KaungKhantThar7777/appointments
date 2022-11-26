@@ -54,12 +54,11 @@ describe("AppointmentsDayViewLoader", () => {
       <AppointmentsDayViewLoader today={today} />
     );
 
-    expect(AppointmentsDayView).toHaveBeenCalledWith(
-      {
-        appointments: [],
-      },
-      expect.anything()
-    );
+    expect(
+      AppointmentsDayView
+    ).toBeFirstRenderedWithProps({
+      appointments: [],
+    });
   });
 
   it("fetches data when component is mounted", async () => {
@@ -86,9 +85,11 @@ describe("AppointmentsDayViewLoader", () => {
       <AppointmentsDayViewLoader />
     );
 
-    expect(AppointmentsDayView).toBeRenderWithProps({
-      appointments,
-    });
+    expect(AppointmentsDayView).toBeRenderedWithProps(
+      {
+        appointments,
+      }
+    );
   });
 
   it("re-request appointments when today prop changes", async () => {
@@ -103,7 +104,7 @@ describe("AppointmentsDayViewLoader", () => {
       <AppointmentsDayViewLoader today={tomorrow} />
     );
 
-    expect(global.fetch).toBeRenderWithProps(
+    expect(global.fetch).toBeRenderedWithProps(
       `/appointments/${from}-${to}`
     );
   });
