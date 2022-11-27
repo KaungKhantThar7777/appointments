@@ -2,7 +2,6 @@ import React from "react";
 import {
   today,
   todayAt,
-  tomorrow,
   tomorrowAt,
 } from "../test/builders/time";
 import {
@@ -80,7 +79,7 @@ describe("AppointmentForm", () => {
       <AppointmentForm
         {...testProps}
         original={appointment}
-        onSubmit={saveFn}
+        onSave={saveFn}
       />
     );
 
@@ -97,7 +96,7 @@ describe("AppointmentForm", () => {
       <AppointmentForm
         {...testProps}
         original={appointment}
-        onSubmit={saveFn}
+        onSave={saveFn}
       />
     );
     click(startsAtField(1));
@@ -112,7 +111,7 @@ describe("AppointmentForm", () => {
     render(
       <AppointmentForm
         {...testProps}
-        onSubmit={saveFn}
+        onSave={saveFn}
       />
     );
 
@@ -129,18 +128,21 @@ describe("AppointmentForm", () => {
     );
   });
 
-  it("call with the payload body", async () => {
+  it.only("call with the payload body", async () => {
     const selectableServices = ["1", "2"];
     const selectableStylists = ["A", "B", "C"];
     const serviceStylists = {
       1: ["A", "B"],
     };
-    const appointment = { service: "1" };
+    const appointment = {
+      service: "1",
+      customer: "123",
+    };
     render(
       <AppointmentForm
         {...testProps}
         original={appointment}
-        onSubmit={saveFn}
+        onSave={saveFn}
         selectableServices={selectableServices}
         selectableStylists={selectableStylists}
         serviceStylists={serviceStylists}
@@ -168,7 +170,7 @@ describe("AppointmentForm", () => {
       <AppointmentForm
         {...testProps}
         original={appointment}
-        onSubmit={saveFn}
+        onSave={saveFn}
         selectableServices={selectableServices}
         selectableStylists={selectableStylists}
         serviceStylists={serviceStylists}
@@ -225,7 +227,7 @@ describe("AppointmentForm", () => {
         <AppointmentForm
           {...testProps}
           original={{ [fieldName]: existingValue }}
-          onSubmit={saveFn}
+          onSave={saveFn}
         />
       );
 
@@ -241,7 +243,7 @@ describe("AppointmentForm", () => {
       render(
         <AppointmentForm
           {...testProps}
-          onSubmit={saveFn}
+          onSave={saveFn}
         />
       );
       change(field(fieldName), value);

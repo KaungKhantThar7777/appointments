@@ -12,18 +12,15 @@ import {
   submitButton,
 } from "./reactTestExtensions";
 import { CustomerForm } from "../src/CustomerForm";
-import { AppointmentForm } from "../src/AppointmentForm";
+
 import { bodyOfLastFetchRequest } from "./spyHelpers";
 import {
   fetchResponseError,
   fetchResponseOk,
 } from "./builders/fetch";
+import { blankCustomer } from "./builders/customer";
 
 describe("CustomerForm", () => {
-  const blankCustomer = {
-    firstName: "",
-  };
-
   beforeEach(() => {
     initializeReactContainer();
 
@@ -44,11 +41,6 @@ describe("CustomerForm", () => {
   });
 
   const itRendersAsATextBox = (fieldName) => {
-    const blankCustomer = {
-      firstName: "",
-      lastName: "",
-      phoneNumber: "",
-    };
     it("renders as a text box", () => {
       render(
         <CustomerForm
