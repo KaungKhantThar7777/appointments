@@ -47,7 +47,7 @@ describe("CustomerForm", () => {
     const blankCustomer = {
       firstName: "",
       lastName: "",
-      phoneNo: "",
+      phoneNumber: "",
     };
     it("renders as a text box", () => {
       render(
@@ -149,7 +149,7 @@ describe("CustomerForm", () => {
       const customer = {
         firstName: "Ashley",
         lastName: "Jame",
-        phoneNo: "1111",
+        phoneNumber: "1111",
       };
       render(
         <CustomerForm
@@ -186,12 +186,15 @@ describe("CustomerForm", () => {
   });
 
   describe("phone number field", () => {
-    itRendersAsATextBox("phoneNo");
-    itIncludesTheExistingValue("phoneNo", "234234");
-    itRendersALabel("phoneNo", "Phone number");
-    itAssignAnIdThatMatchTheLabelId("phoneNo");
-    itSubmitExistingValue("phoneNo", 1234);
-    itSubmitNewValue("phoneNo", "5555");
+    itRendersAsATextBox("phoneNumber");
+    itIncludesTheExistingValue(
+      "phoneNumber",
+      "234234"
+    );
+    itRendersALabel("phoneNumber", "Phone number");
+    itAssignAnIdThatMatchTheLabelId("phoneNumber");
+    itSubmitExistingValue("phoneNumber", 1234);
+    itSubmitNewValue("phoneNumber", "5555");
   });
 
   it("sends POST request to /customers when submitting the form", async () => {

@@ -1,3 +1,4 @@
+import e from "express";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
@@ -76,4 +77,13 @@ export const change = (target, value) => {
 
 export const labelFor = (fieldName) => {
   return element(`label[for="${fieldName}"]`);
+};
+
+export const propsOf = (mockedComponent) => {
+  const lastCall =
+    mockedComponent.mock.calls[
+      mockedComponent.mock.calls.length - 1
+    ];
+
+  return lastCall[0];
 };

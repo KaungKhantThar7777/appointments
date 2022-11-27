@@ -25,6 +25,7 @@ export const CustomerForm = ({
       [name]: value,
     }));
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -73,12 +74,14 @@ export const CustomerForm = ({
         onChange={handleChange}
       />
 
-      <label htmlFor="phoneNo">Phone number</label>
+      <label htmlFor="phoneNumber">
+        Phone number
+      </label>
       <input
-        id="phoneNo"
+        id="phoneNumber"
         type="text"
-        name="phoneNo"
-        value={customer.phoneNo || ""}
+        name="phoneNumber"
+        value={customer.phoneNumber || ""}
         onChange={handleChange}
       />
       <input type="submit" value="Add" />

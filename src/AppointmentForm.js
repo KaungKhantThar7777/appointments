@@ -155,7 +155,7 @@ export const AppointmentForm = ({
   salonClosesAt,
   today,
   availableTimeSlots,
-  onSubmit,
+  onSave,
 }) => {
   const [appointment, setAppointment] =
     React.useState(original);
@@ -191,7 +191,7 @@ export const AppointmentForm = ({
     });
 
     if (result.ok) {
-      onSubmit(appointment);
+      onSave(appointment);
     }
   };
 
