@@ -10,12 +10,56 @@ const Error = ({ hasError }) => {
     </p>
   );
 };
+
+const required = (description) => (value) =>
+  !value || value.trim() === ""
+    ? description
+    : undefined;
+
+const match = (re, description) => (value) =>
+  value.match(re) ? undefined : description;
+
+const list =
+  (...validators) =>
+  (value) =>
+    validators.reduce(
+      (result, validator) =>
+        result || validator(value),
+      undefined
+    );
+
 export const CustomerForm = ({
   original,
   onSave,
 }) => {
   const [customer, setCustomer] = useState(original);
   const [hasError, setHasError] = useState(false);
+  const [validationErrors, setValidationErrors] =
+    useState({});
+
+  const handleBlur = ({ target }) => {
+    const validators = {
+      firstName: required("First name is required"),
+      lastName: required("Last name is required"),
+      phoneNumber: list(
+        required("Phone number is required"),
+        match(
+          /^[0-9+() \-]*$/,
+          "Only numbers, spaces and these symbols are allowed: ( ) + -"
+        )
+      ),
+    };
+    const result = validators[target.name](
+      target.value
+    );
+    setValidationErrors({
+      ...validationErrors,
+      [target.name]: result,
+    });
+  };
+
+  const hasFieldError = (fieldName) =>
+    validationErrors[fieldName] !== undefined;
 
   const handleChange = ({
     target: { name, value },
@@ -53,6 +97,13 @@ export const CustomerForm = ({
     }
   };
 
+  const renderError = (fieldName) => (
+    <span id={`${fieldName}Error`} role="alert">
+      {hasFieldError(fieldName)
+        ? validationErrors[fieldName]
+        : ""}
+    </span>
+  );
   return (
     <form onSubmit={handleSubmit}>
       <Error hasError={hasError} />
@@ -63,7 +114,10 @@ export const CustomerForm = ({
         name="firstName"
         value={customer.firstName || ""}
         onChange={handleChange}
+        onBlur={handleBlur}
+        aria-describedby="firstNameError"
       />
+      {renderError("firstName")}
 
       <label htmlFor="lastName">Last name</label>
       <input
@@ -72,7 +126,10 @@ export const CustomerForm = ({
         name="lastName"
         value={customer.lastName || ""}
         onChange={handleChange}
+        onBlur={handleBlur}
+        aria-describedby="lastNameError"
       />
+      {renderError("lastName")}
 
       <label htmlFor="phoneNumber">
         Phone number
@@ -83,7 +140,11 @@ export const CustomerForm = ({
         name="phoneNumber"
         value={customer.phoneNumber || ""}
         onChange={handleChange}
+        onBlur={handleBlur}
+        aria-describedby="phoneNumberError"
       />
+      {renderError("phoneNumber")}
+
       <input type="submit" value="Add" />
     </form>
   );
