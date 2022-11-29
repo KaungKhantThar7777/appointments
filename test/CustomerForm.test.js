@@ -3,6 +3,7 @@ import {
   change,
   clickAndWait,
   element,
+  elements,
   field,
   form,
   initializeReactContainer,
@@ -10,6 +11,7 @@ import {
   render,
   submit,
   submitButton,
+  textOf,
   withFocus,
 } from "./reactTestExtensions";
 import { CustomerForm } from "../src/CustomerForm";
@@ -19,7 +21,10 @@ import {
   fetchResponseError,
   fetchResponseOk,
 } from "./builders/fetch";
-import { blankCustomer } from "./builders/customer";
+import {
+  blankCustomer,
+  validCustomer,
+} from "./builders/customer";
 
 describe("CustomerForm", () => {
   beforeEach(() => {
@@ -119,10 +124,15 @@ describe("CustomerForm", () => {
     existingValue
   ) => {
     it("submit existing value when submitted", () => {
-      const customer = { [fieldName]: existingValue };
+      const customer = {
+        ...validCustomer,
+        [fieldName]: existingValue,
+      };
+
       render(
         <CustomerForm
           original={customer}
+          x
           onSave={() => {}}
         />
       );
@@ -139,14 +149,9 @@ describe("CustomerForm", () => {
     existingValue
   ) => {
     it("submit new value", async () => {
-      const customer = {
-        firstName: "Ashley",
-        lastName: "Jame",
-        phoneNumber: "1111",
-      };
       render(
         <CustomerForm
-          original={customer}
+          original={validCustomer}
           onSave={() => {}}
         />
       );
@@ -186,14 +191,14 @@ describe("CustomerForm", () => {
     );
     itRendersALabel("phoneNumber", "Phone number");
     itAssignAnIdThatMatchTheLabelId("phoneNumber");
-    itSubmitExistingValue("phoneNumber", 1234);
+    itSubmitExistingValue("phoneNumber", "1234");
     itSubmitNewValue("phoneNumber", "5555");
   });
 
   it("sends POST request to /customers when submitting the form", async () => {
     render(
       <CustomerForm
-        original={blankCustomer}
+        original={validCustomer}
         onSave={() => {}}
       />
     );
@@ -211,7 +216,7 @@ describe("CustomerForm", () => {
   it("calls fetch with the right configuration", async () => {
     render(
       <CustomerForm
-        original={blankCustomer}
+        original={validCustomer}
         onSave={() => {}}
       />
     );
@@ -238,7 +243,7 @@ describe("CustomerForm", () => {
 
     render(
       <CustomerForm
-        original={blankCustomer}
+        original={validCustomer}
         onSave={saveSpy}
       />
     );
@@ -265,7 +270,7 @@ describe("CustomerForm", () => {
   it("renders error message", async () => {
     fetch.mockRejectedValue(fetchResponseError());
 
-    render(<CustomerForm original={blankCustomer} />);
+    render(<CustomerForm original={validCustomer} />);
 
     await clickAndWait(submitButton());
 
@@ -294,7 +299,7 @@ describe("CustomerForm", () => {
     const saveFn = jest.fn();
     render(
       <CustomerForm
-        original={blankCustomer}
+        original={validCustomer}
         onSave={saveFn}
       />
     );
@@ -314,6 +319,28 @@ describe("CustomerForm", () => {
     );
     expect(saveFn).toHaveBeenCalledTimes(1);
   });
+
+  it("does not submit the form when there are validation errors", async () => {
+    render(<CustomerForm original={blankCustomer} />);
+
+    await clickAndWait(submitButton());
+
+    expect(global.fetch).not.toBeCalled();
+  });
+
+  it("renders validation errors after submission fails", async () => {
+    render(<CustomerForm original={blankCustomer} />);
+
+    await clickAndWait(submitButton());
+    console.log(textOf(elements("[role=alert]")));
+    expect(textOf(elements("[role=alert]"))).toEqual([
+      " ",
+      "First name is required",
+      "Last name is required",
+      "Phone number is required",
+    ]);
+  });
+
   describe("validation", () => {
     const errorFor = (fieldName) =>
       element(`#${fieldName}Error[role=alert]`);
@@ -425,7 +452,7 @@ describe("CustomerForm", () => {
         withFocus(field("phoneNumber"), () => {
           change(
             field("phoneNumber"),
-            "0123456789 () - + "
+            "0123456789 () - +  "
           );
         });
 
