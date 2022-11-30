@@ -4,7 +4,6 @@ import { AppointmentsDayView } from "./AppointmentsDayView";
 export const AppointmentsDayViewLoader = ({
   today,
 }) => {
-  console.log({ today });
   const [appointments, setAppointments] = useState(
     []
   );
@@ -26,7 +25,6 @@ export const AppointmentsDayViewLoader = ({
       setAppointments(data);
     };
     fetchAppointments();
-    console.log({ today }, "fetching");
   }, [today]);
   return (
     <AppointmentsDayView

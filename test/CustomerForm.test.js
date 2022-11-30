@@ -332,7 +332,7 @@ describe("CustomerForm", () => {
     render(<CustomerForm original={blankCustomer} />);
 
     await clickAndWait(submitButton());
-    console.log(textOf(elements("[role=alert]")));
+
     expect(textOf(elements("[role=alert]"))).toEqual([
       " ",
       "First name is required",

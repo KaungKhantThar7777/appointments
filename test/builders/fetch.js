@@ -5,6 +5,8 @@ export const fetchResponseOk = (body) => {
   };
 };
 
-export const fetchResponseError = () => ({
+export const fetchResponseError = (status = 500, body = {}) => ({
   ok: false,
+  status,
+  json: () => Promise.resolve(body),
 });
