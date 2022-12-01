@@ -1,6 +1,8 @@
 import React from "react";
+import { CustomerForm } from "../src/CustomerForm";
 import {
   change,
+  click,
   clickAndWait,
   element,
   elements,
@@ -14,17 +16,17 @@ import {
   textOf,
   withFocus,
 } from "./reactTestExtensions";
-import { CustomerForm } from "../src/CustomerForm";
 
-import { bodyOfLastFetchRequest } from "./spyHelpers";
-import {
-  fetchResponseError,
-  fetchResponseOk,
-} from "./builders/fetch";
 import {
   blankCustomer,
   validCustomer,
 } from "./builders/customer";
+import {
+  fetchResponseError,
+  fetchResponseOk,
+} from "./builders/fetch";
+import { bodyOfLastFetchRequest } from "./spyHelpers";
+import { act } from "react-dom/test-utils";
 
 describe("CustomerForm", () => {
   beforeEach(() => {
@@ -34,6 +36,8 @@ describe("CustomerForm", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(fetchResponseOk());
   });
+  const errorFor = (fieldName) =>
+    element(`#${fieldName}Error[role=alert]`);
 
   it("renders a form", () => {
     render(
@@ -341,9 +345,80 @@ describe("CustomerForm", () => {
     ]);
   });
 
+  it("clear errors when fields are valid", async () => {
+    render(<CustomerForm original={blankCustomer} />);
+    await clickAndWait(submitButton());
+
+    expect(textOf(elements("[role=alert]"))).toEqual([
+      " ",
+      "First name is required",
+      "Last name is required",
+      "Phone number is required",
+    ]);
+
+    change(field("firstName"), "Kaung");
+    change(field("lastName"), "Khant");
+    change(field("phoneNumber"), "1234");
+
+    expect(textOf(elements("[role=alert]"))).toEqual([
+      " ",
+      " ",
+      " ",
+      " ",
+    ]);
+  });
+
+  it("renders field validations errors from server", async () => {
+    const errors = {
+      phoneNumber:
+        "Phone number already exists in the system",
+    };
+    global.fetch.mockResolvedValue(
+      fetchResponseError(422, { errors })
+    );
+    render(<CustomerForm original={validCustomer} />);
+
+    await clickAndWait(submitButton());
+
+    expect(errorFor("phoneNumber")).toContainText(
+      errors.phoneNumber
+    );
+  });
+
+  it("disables the submit button while submitting", async () => {
+    render(<CustomerForm original={validCustomer} />);
+
+    click(submitButton());
+    await act(async () => {
+      expect(submitButton().disabled).toBe(true);
+    });
+  });
+  describe("submitting indicator", () => {
+    it("displays when form is submitting", async () => {
+      render(
+        <CustomerForm original={validCustomer} />
+      );
+
+      click(submitButton());
+      await act(async () => {
+        expect(
+          element("span.submittingIndicator")
+        ).not.toBeNull();
+      });
+    });
+
+    it("initially does not display the submitting indicator", () => {
+      render(
+        <CustomerForm original={validCustomer} />
+      );
+
+      expect(
+        element("span.submittingIndicator")
+      ).toBeNull();
+    });
+  });
+
   describe("validation", () => {
-    const errorFor = (fieldName) =>
-      element(`#${fieldName}Error[role=alert]`);
     const itRendersAlertForFieldValidation = (
       fieldName
     ) => {
@@ -401,7 +476,7 @@ describe("CustomerForm", () => {
         expect(
           element(`#${fieldName}Error[role=alert]`)
             .textContent
-        ).toEqual("");
+        ).toEqual(" ");
       });
     };
     describe("firstName", () => {

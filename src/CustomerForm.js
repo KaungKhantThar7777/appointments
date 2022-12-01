@@ -25,6 +25,7 @@ export const CustomerForm = ({
 }) => {
   const [customer, setCustomer] = useState(original);
   const [hasError, setHasError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] =
     useState({});
 
@@ -40,14 +41,18 @@ export const CustomerForm = ({
     ),
   };
 
-  const handleBlur = ({ target }) => {
-    const result = validators[target.name](
-      target.value
-    );
+  const validate = (name, value) => {
+    const result = validators[name](value);
+
     setValidationErrors({
       ...validationErrors,
-      [target.name]: result,
+      [name]: result,
     });
+  };
+  const handleBlur = ({
+    target: { name, value },
+  }) => {
+    validate(name, value);
   };
 
   const handleChange = ({
@@ -57,6 +62,31 @@ export const CustomerForm = ({
       ...customer,
       [name]: value,
     }));
+
+    validate(name, value);
+  };
+
+  const doSubmit = async () => {
+    const result = await global.fetch("/customers", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(customer),
+    });
+
+    if (result.ok) {
+      const customerWithId = await result.json();
+      setHasError(false);
+      onSave(customerWithId);
+    } else if (result.status === 422) {
+      const response = await result.json();
+
+      setValidationErrors(response.errors);
+    } else {
+      setHasError(true);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -67,39 +97,24 @@ export const CustomerForm = ({
     );
 
     if (!anyErrors(validationResult)) {
+      setSubmitting(true);
       try {
-        const result = await global.fetch(
-          "/customers",
-          {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(customer),
-          }
-        );
-
-        if (result.ok) {
-          const customerWithId = await result.json();
-          onSave(customerWithId);
-          setHasError(false);
-        } else {
-          setHasError(true);
-        }
+        await doSubmit();
       } catch (error) {
         setHasError(true);
       }
+      setSubmitting(false);
     } else {
       setValidationErrors(validationResult);
     }
+    setSubmitting(false);
   };
 
   const renderError = (fieldName) => (
     <span id={`${fieldName}Error`} role="alert">
       {hasFieldError(validationErrors, fieldName)
         ? validationErrors[fieldName]
-        : ""}
+        : " "}
     </span>
   );
   return (
@@ -143,7 +158,14 @@ export const CustomerForm = ({
       />
       {renderError("phoneNumber")}
 
-      <input type="submit" value="Add" />
+      <input
+        type="submit"
+        value="Add"
+        disabled={submitting}
+      />
+      {submitting && (
+        <span className="submittingIndicator"></span>
+      )}
     </form>
   );
 };
