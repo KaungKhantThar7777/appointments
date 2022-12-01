@@ -103,7 +103,7 @@ export const CustomerForm = ({
       } catch (error) {
         setHasError(true);
       }
-      console.log("why 99");
+      console.log("why 99 still??");
       setSubmitting(false);
     } else {
       setValidationErrors(validationResult);
