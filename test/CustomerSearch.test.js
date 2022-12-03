@@ -118,16 +118,6 @@ describe("CustomerSearch", () => {
 
     expect(buttonWithLabel("Next")).not.toBeNull();
   });
-  it("disables next button when customers less than 10", async () => {
-    global.fetch.mockResolvedValue(
-      fetchResponseOk(oneCustomer)
-    );
-    await renderAndWait(<CustomerSearch />);
-
-    expect(buttonWithLabel("Next").disabled).toBe(
-      true
-    );
-  });
 
   it("requests next page of data when next button is clicked", async () => {
     global.fetch.mockResolvedValue(
@@ -314,6 +304,16 @@ describe("CustomerSearch", () => {
   });
 
   [20, 30, 50].forEach((limitSize) => {
+    it(`disables next button when customers less than ${limitSize}`, async () => {
+      global.fetch.mockResolvedValue(
+        fetchResponseOk(oneCustomer)
+      );
+      await renderAndWait(<CustomerSearch />);
+
+      expect(buttonWithLabel("Next").disabled).toBe(
+        true
+      );
+    });
     it(`has a button with label ${limitSize} that is initially not toggled`, async () => {
       await renderAndWait(<CustomerSearch />);
 

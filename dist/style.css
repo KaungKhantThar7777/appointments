@@ -54,6 +54,10 @@ button,
   background: #79a;
 }
 
+.disabled {
+  cursor: not-allowed;
+  background: #ccc;
+}
 li:first-child {
   margin: 20px 0 0 0;
 }

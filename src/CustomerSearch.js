@@ -54,6 +54,9 @@ const SearchButtons = ({
         <button
           onClick={handlePrevious}
           disabled={customerIds.length === 0}
+          className={
+            customerIds.length === 0 ? "disabled" : ""
+          }
         >
           Previous
         </button>
@@ -61,7 +64,10 @@ const SearchButtons = ({
       <li>
         <button
           onClick={handleNext}
-          disabled={customers.length < 10}
+          disabled={customers.length < limit}
+          className={
+            customers.length < limit ? "disabled" : ""
+          }
         >
           Next
         </button>
