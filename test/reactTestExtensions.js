@@ -54,6 +54,12 @@ export const submit = (formElement) => {
 export const submitButton = () =>
   element("input[type='submit']");
 
+export const buttonWithLabel = (label) => {
+  return elements("button").find((text) => {
+    return text.textContent === label;
+  });
+};
+
 const originalValueProperty = (reactElement) => {
   const prototype =
     Object.getPrototypeOf(reactElement);
