@@ -3,57 +3,80 @@ import React, {
   useEffect,
   useState,
 } from "react";
+import { searchParams } from "./searchParams";
 
 const CustomerRow = ({
-  customer: { firstName, lastName, phoneNumber },
+  customer,
+  renderCustomerActions,
 }) => {
+  const { firstName, lastName, phoneNumber } =
+    customer;
   return (
     <tr>
       <td>{firstName}</td>
       <td>{lastName}</td>
       <td>{phoneNumber}</td>
-      <td></td>
+      <td>{renderCustomerActions(customer)}</td>
     </tr>
   );
 };
 
+const ToggleButton = ({ onClick, value, limit }) => (
+  <button
+    onClick={() => onClick(value)}
+    className={value === limit ? "toggled" : ""}
+  >
+    {value}
+  </button>
+);
+
 const SearchButtons = ({
   handleNext,
   handlePrevious,
+  customerIds,
+  customers,
+  limit,
+  handleLimit,
 }) => {
   return (
     <menu>
+      {[10, 20, 30, 50].map((limitSize) => (
+        <li key={limitSize}>
+          <ToggleButton
+            value={limitSize}
+            limit={limit}
+            onClick={handleLimit}
+          />
+        </li>
+      ))}
+
       <li>
-        <button onClick={handlePrevious}>
+        <button
+          onClick={handlePrevious}
+          disabled={customerIds.length === 0}
+        >
           Previous
         </button>
       </li>
       <li>
-        <button onClick={handleNext}>Next</button>
+        <button
+          onClick={handleNext}
+          disabled={customers.length < 10}
+        >
+          Next
+        </button>
       </li>
     </menu>
   );
 };
 
-const searchParams = (obj = {}) => {
-  const queries = Object.entries(obj)
-    .filter(
-      ([key, value]) =>
-        value !== undefined &&
-        value !== null &&
-        value !== ""
-    )
-    .map(([key, value]) => `${key}=${value}`);
-
-  if (queries.length > 0) {
-    return "?" + queries.join("&");
-  }
-  return "";
-};
-export const CustomerSearch = () => {
+export const CustomerSearch = ({
+  renderCustomerActions,
+}) => {
   const [customers, setCustomers] = useState([]);
   const [customerIds, setCustomerIds] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -63,6 +86,7 @@ export const CustomerSearch = () => {
       let queryString = searchParams({
         searchTerm,
         after,
+        limit: limit === 10 ? "" : limit,
       });
 
       const url = `/customers${queryString}`;
@@ -79,7 +103,7 @@ export const CustomerSearch = () => {
       setCustomers(customers);
     };
     fetchCustomers();
-  }, [customerIds, searchTerm]);
+  }, [customerIds, searchTerm, limit]);
 
   const handleNext = useCallback(() => {
     const customerId =
@@ -106,6 +130,10 @@ export const CustomerSearch = () => {
       <SearchButtons
         handleNext={handleNext}
         handlePrevious={handlePrevious}
+        customerIds={customerIds}
+        customers={customers}
+        limit={limit}
+        handleLimit={setLimit}
       />
       <table>
         <thead>
@@ -121,10 +149,17 @@ export const CustomerSearch = () => {
             <CustomerRow
               key={customer.id}
               customer={customer}
+              renderCustomerActions={
+                renderCustomerActions
+              }
             />
           ))}
         </tbody>
       </table>
     </>
   );
+};
+
+CustomerSearch.defaultProps = {
+  renderCustomerActions: () => {},
 };

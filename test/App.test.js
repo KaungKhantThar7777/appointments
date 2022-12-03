@@ -7,6 +7,7 @@ import {
   render,
   renderAndWait,
   propsOf,
+  renderAdditional,
 } from "./reactTestExtensions";
 
 import { App } from "../src/App";
@@ -15,6 +16,7 @@ import { CustomerForm } from "../src/CustomerForm";
 import { AppointmentFormLoader } from "../src/AppointmentFormLoader";
 import { blankCustomer } from "./builders/customer";
 import { blankAppointment } from "./builders/appointment";
+import { CustomerSearch } from "../src/CustomerSearch";
 
 jest.mock("../src/AppointmentsDayViewLoader", () => ({
   AppointmentsDayViewLoader: jest.fn(() => (
@@ -31,6 +33,12 @@ jest.mock("../src/CustomerForm", () => ({
 jest.mock("../src/AppointmentFormLoader", () => ({
   AppointmentFormLoader: jest.fn(() => (
     <div id="AppointmentFormLoader" />
+  )),
+}));
+
+jest.mock("../src/CustomerSearch", () => ({
+  CustomerSearch: jest.fn(() => (
+    <div id="CustomerSearch"> </div>
   )),
 }));
 
@@ -168,5 +176,72 @@ describe("App", () => {
     saveAppointment();
 
     expect(AppointmentsDayViewLoader).toBeRendered();
+  });
+
+  describe("CustomerSearch", () => {
+    it("has a button to search customers", () => {
+      render(<App />);
+      const secondButton = element(
+        "menu li:nth-of-type(2) button"
+      );
+
+      expect(secondButton).not.toBeNull();
+      expect(secondButton).toContainText(
+        "Search customers"
+      );
+    });
+
+    const navigateToSearchCustomers = () =>
+      click(element("menu li:nth-of-type(2) button"));
+
+    const searchFor = (customer) =>
+      propsOf(CustomerSearch).renderCustomerActions(
+        customer
+      );
+
+    it("displays CustomerSearch when button is clicked", () => {
+      render(<App />);
+
+      navigateToSearchCustomers();
+
+      expect(CustomerSearch).toBeRendered();
+    });
+
+    it("passses a button to the CustomerSearch name Create Appointment", () => {
+      render(<App />);
+      navigateToSearchCustomers();
+
+      const buttonContainer = renderAdditional(
+        searchFor()
+      );
+
+      expect(
+        buttonContainer.firstChild
+      ).toBeElementWithTag("button");
+      expect(
+        buttonContainer.firstChild
+      ).toContainText("Create Appointment");
+    });
+
+    it("clicking appointment button shows the appointment form for that customer", async () => {
+      const customer = { id: 123 };
+
+      render(<App />);
+
+      navigateToSearchCustomers();
+      const buttonContainer = renderAdditional(
+        searchFor(customer)
+      );
+
+      click(buttonContainer.firstChild);
+
+      expect(
+        element("#AppointmentFormLoader")
+      ).not.toBeNull();
+
+      expect(
+        propsOf(AppointmentFormLoader).original
+      ).toMatchObject({ customer: 123 });
+    });
   });
 });

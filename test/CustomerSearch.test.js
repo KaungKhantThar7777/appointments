@@ -42,11 +42,18 @@ const tenCustomers = Array.from(
   "0123456789",
   (id) => ({ id })
 );
+
 const anotherTenCustomers = Array.from(
   "ABCDEFGHIJ",
   (id) => ({ id })
 );
 
+const twentyCustomers = Array.from(
+  "0123456789ABCDEFGHIJ",
+  (id) => ({
+    id: id,
+  })
+);
 describe("CustomerSearch", () => {
   beforeEach(() => {
     initializeReactContainer();
@@ -111,6 +118,16 @@ describe("CustomerSearch", () => {
 
     expect(buttonWithLabel("Next")).not.toBeNull();
   });
+  it("disables next button when customers less than 10", async () => {
+    global.fetch.mockResolvedValue(
+      fetchResponseOk(oneCustomer)
+    );
+    await renderAndWait(<CustomerSearch />);
+
+    expect(buttonWithLabel("Next").disabled).toBe(
+      true
+    );
+  });
 
   it("requests next page of data when next button is clicked", async () => {
     global.fetch.mockResolvedValue(
@@ -159,6 +176,13 @@ describe("CustomerSearch", () => {
     expect(buttonWithLabel("Previous")).toBeDefined();
   });
 
+  it("disable previous button when in the first page", async () => {
+    await renderAndWait(<CustomerSearch />);
+
+    expect(buttonWithLabel("Previous").disabled).toBe(
+      true
+    );
+  });
   it("moves back to the first page when previous page is clicked", async () => {
     global.fetch.mockResolvedValue(
       fetchResponseOk(tenCustomers)
@@ -247,5 +271,110 @@ describe("CustomerSearch", () => {
       "/customers?searchTerm=name&after=9",
       expect.anything()
     );
+  });
+
+  it("displays provided action buttons for each customer", async () => {
+    const actionSpy = jest.fn(() => "actions");
+
+    global.fetch.mockResolvedValue(
+      fetchResponseOk(tenCustomers)
+    );
+
+    await renderAndWait(
+      <CustomerSearch
+        renderCustomerActions={actionSpy}
+      />
+    );
+
+    const rows = elements("table tbody td");
+    expect(rows[rows.length - 1]).toContainText(
+      "actions"
+    );
+  });
+
+  it("passes customer to the renderCustomerActions props", async () => {
+    const actionSpy = jest.fn(() => "actions");
+    global.fetch.mockResolvedValue(
+      fetchResponseOk(oneCustomer)
+    );
+    await renderAndWait(
+      <CustomerSearch
+        renderCustomerActions={actionSpy}
+      />
+    );
+
+    expect(actionSpy).toBeCalledWith(oneCustomer[0]);
+  });
+
+  it("has a button with a label of 10 that is initially toggled", async () => {
+    await renderAndWait(<CustomerSearch />);
+    const button = buttonWithLabel("10");
+    expect(button).toBeDefined();
+    expect(button.className).toContain("toggled");
+  });
+
+  [20, 30, 50].forEach((limitSize) => {
+    it(`has a button with label ${limitSize} that is initially not toggled`, async () => {
+      await renderAndWait(<CustomerSearch />);
+
+      const button = buttonWithLabel(`${limitSize}`);
+      expect(button).toBeDefined();
+      expect(button.className).not.toContain(
+        "toggled"
+      );
+    });
+
+    it(`searches by ${limitSize} when click on the ${limitSize}`, async () => {
+      await renderAndWait(<CustomerSearch />);
+
+      await clickAndWait(
+        buttonWithLabel(`${limitSize}`)
+      );
+
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        `/customers?limit=${limitSize}`,
+        expect.anything()
+      );
+    });
+
+    it("searches by 10 records when clicking on 10", async () => {
+      await renderAndWait(<CustomerSearch />);
+
+      await clickAndWait(
+        buttonWithLabel(`${limitSize}`)
+      );
+      await clickAndWait(buttonWithLabel("10"));
+
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        `/customers`,
+        expect.anything()
+      );
+    });
+
+    it("next button still enabled if limit changes", async () => {
+      global.fetch.mockResolvedValue(
+        fetchResponseOk(twentyCustomers)
+      );
+      await renderAndWait(<CustomerSearch />);
+      await clickAndWait(buttonWithLabel("20"));
+      expect(
+        buttonWithLabel("Next").getAttribute(
+          "disabled"
+        )
+      ).toBeNull();
+    });
+
+    it("changing limit maintains current page", async () => {
+      global.fetch.mockResolvedValue(
+        fetchResponseOk(tenCustomers)
+      );
+      await renderAndWait(<CustomerSearch />);
+      await clickAndWait(buttonWithLabel("Next"));
+      await clickAndWait(buttonWithLabel("20"));
+      expect(global.fetch).toHaveBeenLastCalledWith(
+        "/customers?after=9&limit=20",
+        expect.anything()
+      );
+    });
   });
 });
