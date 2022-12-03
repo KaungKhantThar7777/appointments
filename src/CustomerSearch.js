@@ -34,16 +34,36 @@ const SearchButtons = ({
     </menu>
   );
 };
+
+const searchParams = (obj = {}) => {
+  const queries = Object.entries(obj)
+    .filter(
+      ([key, value]) =>
+        value !== undefined &&
+        value !== null &&
+        value !== ""
+    )
+    .map(([key, value]) => `${key}=${value}`);
+
+  if (queries.length > 0) {
+    return "?" + queries.join("&");
+  }
+  return "";
+};
 export const CustomerSearch = () => {
   const [customers, setCustomers] = useState([]);
-  const [queryStrings, setQueryStrings] = useState(
-    []
-  );
+  const [customerIds, setCustomerIds] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const queryString =
-        queryStrings[queryStrings.length - 1] || "";
+      const after =
+        customerIds[customerIds.length - 1];
+
+      let queryString = searchParams({
+        searchTerm,
+        after,
+      });
 
       const url = `/customers${queryString}`;
       const response = await fetch(url, {
@@ -59,20 +79,30 @@ export const CustomerSearch = () => {
       setCustomers(customers);
     };
     fetchCustomers();
-  }, [queryStrings]);
+  }, [customerIds, searchTerm]);
 
   const handleNext = useCallback(() => {
-    const after = customers[customers.length - 1].id;
+    const customerId =
+      customers[customers.length - 1].id;
 
-    const queryString = `?after=${after}`;
-    setQueryStrings([...queryStrings, queryString]);
+    setCustomerIds([...customerIds, customerId]);
   }, [customers]);
 
   const handlePrevious = useCallback(() => {
-    setQueryStrings(queryStrings.slice(0, -1));
-  }, [queryStrings]);
+    setCustomerIds(customerIds.slice(0, -1));
+  }, [customerIds]);
+
+  const handleSearchTermChanged = ({
+    target: { name, value },
+  }) => setSearchTerm(value);
+
   return (
     <>
+      <input
+        placeholder="Enter filter text"
+        value={searchTerm}
+        onChange={handleSearchTermChanged}
+      />
       <SearchButtons
         handleNext={handleNext}
         handlePrevious={handlePrevious}

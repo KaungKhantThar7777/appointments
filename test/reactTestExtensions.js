@@ -80,6 +80,8 @@ export const change = (target, value) => {
   });
   act(() => target.dispatchEvent(event));
 };
+export const changeAndWait = async (target, value) =>
+  act(async () => change(target, value));
 
 export const labelFor = (fieldName) => {
   return element(`label[for="${fieldName}"]`);

@@ -4,7 +4,9 @@ import { fetchResponseOk } from "./builders/fetch";
 import { CustomerSearch } from "../src/CustomerSearch";
 import {
   buttonWithLabel,
+  changeAndWait,
   clickAndWait,
+  element,
   elements,
   initializeReactContainer,
   renderAndWait,
@@ -205,6 +207,44 @@ describe("CustomerSearch", () => {
 
     expect(global.fetch).toHaveBeenLastCalledWith(
       "/customers",
+      expect.anything()
+    );
+  });
+
+  it("renders a text field for a search term", async () => {
+    await renderAndWait(<CustomerSearch />);
+    expect(element("input")).not.toBeNull();
+  });
+
+  it("sets placeholder text on the search term field", async () => {
+    await renderAndWait(<CustomerSearch />);
+    expect(
+      element("input").getAttribute("placeholder")
+    ).toEqual("Enter filter text");
+  });
+
+  it("performs search when search terms is changed", async () => {
+    await renderAndWait(<CustomerSearch />);
+    await changeAndWait(element("input"), "name");
+
+    expect(global.fetch).toHaveBeenLastCalledWith(
+      `/customers?searchTerm=name`,
+      expect.anything()
+    );
+  });
+
+  it("includes search term when clicking next button", async () => {
+    global.fetch.mockResolvedValue(
+      fetchResponseOk(tenCustomers)
+    );
+
+    await renderAndWait(<CustomerSearch />);
+
+    await changeAndWait(element("input"), "name");
+    await clickAndWait(buttonWithLabel("Next"));
+
+    expect(global.fetch).toHaveBeenLastCalledWith(
+      "/customers?searchTerm=name&after=9",
       expect.anything()
     );
   });
