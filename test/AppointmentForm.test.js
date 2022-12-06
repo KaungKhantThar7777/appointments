@@ -128,7 +128,7 @@ describe("AppointmentForm", () => {
     );
   });
 
-  it.only("call with the payload body", async () => {
+  it("call with the payload body", async () => {
     const selectableServices = ["1", "2"];
     const selectableStylists = ["A", "B", "C"];
     const serviceStylists = {

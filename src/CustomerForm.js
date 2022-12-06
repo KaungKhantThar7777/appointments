@@ -67,6 +67,7 @@ export const CustomerForm = ({
   };
 
   const doSubmit = async () => {
+    setSubmitting(true);
     const result = await global.fetch("/customers", {
       method: "POST",
       credentials: "same-origin",
@@ -75,6 +76,8 @@ export const CustomerForm = ({
       },
       body: JSON.stringify(customer),
     });
+
+    setSubmitting(false);
 
     if (result.ok) {
       const customerWithId = await result.json();
@@ -97,14 +100,7 @@ export const CustomerForm = ({
     );
 
     if (!anyErrors(validationResult)) {
-      setSubmitting(true);
-      try {
-        await doSubmit();
-      } catch (error) {
-        setHasError(true);
-      }
-
-      setSubmitting(false);
+      await doSubmit();
     } else {
       setValidationErrors(validationResult);
     }

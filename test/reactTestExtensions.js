@@ -61,6 +61,9 @@ export const submit = (formElement) => {
   return event;
 };
 
+export const submitAndWait = async (formElement) =>
+  act(async () => submit(formElement));
+
 export const submitButton = () =>
   element("input[type='submit']");
 
