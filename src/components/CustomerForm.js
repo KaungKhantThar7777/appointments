@@ -6,7 +6,7 @@ import {
   match,
   required,
   validateMany,
-} from "./formValidation";
+} from "../formValidation";
 
 const Error = ({ hasError }) => {
   return (

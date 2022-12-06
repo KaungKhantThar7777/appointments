@@ -5,8 +5,8 @@ import {
   renderAndWait,
   element,
 } from "./reactTestExtensions";
-import { AppointmentsDayViewLoader } from "../src/AppointmentsDayViewLoader";
-import { AppointmentsDayView } from "../src/AppointmentsDayView";
+import { AppointmentsDayViewLoader } from "../src/components/AppointmentsDayViewLoader";
+import { AppointmentsDayView } from "../src/components/AppointmentsDayView";
 import {
   today,
   todayAt,
@@ -15,11 +15,14 @@ import {
 } from "./builders/time";
 import { fetchResponseOk } from "./builders/fetch";
 
-jest.mock("../src/AppointmentsDayView", () => ({
-  AppointmentsDayView: jest.fn(() => (
-    <div id="AppointmentsDayView"></div>
-  )),
-}));
+jest.mock(
+  "../src/components/AppointmentsDayView",
+  () => ({
+    AppointmentsDayView: jest.fn(() => (
+      <div id="AppointmentsDayView"></div>
+    )),
+  })
+);
 
 describe("AppointmentsDayViewLoader", () => {
   const appointments = [

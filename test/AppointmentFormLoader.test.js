@@ -4,15 +4,18 @@ import {
   renderAndWait,
 } from "./reactTestExtensions";
 import { fetchResponseOk } from "./builders/fetch";
-import { AppointmentFormLoader } from "../src/AppointmentFormLoader";
-import { AppointmentForm } from "../src/AppointmentForm";
+import { AppointmentFormLoader } from "../src/components/AppointmentFormLoader";
+import { AppointmentForm } from "../src/components/AppointmentForm";
 import { todayAt } from "./builders/time";
 
-jest.mock("../src/AppointmentForm", () => ({
-  AppointmentForm: jest.fn(() => (
-    <div id="AppointmentForm"></div>
-  )),
-}));
+jest.mock(
+  "../src/components/AppointmentForm",
+  () => ({
+    AppointmentForm: jest.fn(() => (
+      <div id="AppointmentForm"></div>
+    )),
+  })
+);
 
 describe("AppointmentFormLoader", () => {
   beforeEach(() => {

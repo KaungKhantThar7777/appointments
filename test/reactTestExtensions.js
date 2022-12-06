@@ -1,8 +1,10 @@
-import e from "express";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { act } from "react-dom/test-utils";
+import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
+import { createMemoryHistory } from "history";
 
+export let history;
 export let container;
 let reactRoot;
 
@@ -29,6 +31,23 @@ export const renderAdditional = (component) => {
   return container;
 };
 
+export const renderWithRouter = (
+  component,
+  { location } = { location: "" }
+) => {
+  history = createMemoryHistory({
+    initialEntries: [location],
+  });
+
+  act(() =>
+    reactRoot.render(
+      <HistoryRouter history={history}>
+        {component}
+      </HistoryRouter>
+    )
+  );
+};
+
 export const click = (element) =>
   act(() => element.click());
 export const clickAndWait = async (element) =>
@@ -44,6 +63,11 @@ export const typesOf = (elements) =>
 
 export const textOf = (elements) =>
   elements.map((element) => element.textContent);
+
+export const linkFor = (href) =>
+  elements("a").find(
+    (el) => el.getAttribute("href") === href
+  );
 
 export const form = (id) => element("form");
 

@@ -8,39 +8,54 @@ import {
   renderAndWait,
   propsOf,
   renderAdditional,
+  renderWithRouter,
+  history,
+  elements,
+  linkFor,
 } from "./reactTestExtensions";
 
 import { App } from "../src/App";
-import { AppointmentsDayViewLoader } from "../src/AppointmentsDayViewLoader";
-import { CustomerForm } from "../src/CustomerForm";
-import { AppointmentFormLoader } from "../src/AppointmentFormLoader";
+import { AppointmentsDayViewLoader } from "../src/components/AppointmentsDayViewLoader";
+import { CustomerForm } from "../src/components/CustomerForm";
+import { AppointmentFormLoader } from "../src/components/AppointmentFormLoader";
 import { blankCustomer } from "./builders/customer";
 import { blankAppointment } from "./builders/appointment";
-import { CustomerSearch } from "../src/CustomerSearch";
 
-jest.mock("../src/AppointmentsDayViewLoader", () => ({
-  AppointmentsDayViewLoader: jest.fn(() => (
-    <div id="AppointmentsDayViewLoader" />
+import { SearchCustomersPage } from "../src/pages/SearchCustomersPage";
+import { AppointmentFormPage } from "../src/pages/AppointmentFormPage";
+
+jest.mock("../src/pages/AppointmentFormPage", () => ({
+  AppointmentFormPage: jest.fn(() => (
+    <div id="AppointmentFormPage"></div>
   )),
 }));
 
-jest.mock("../src/CustomerForm", () => ({
+jest.mock("../src/pages/SearchCustomersPage", () => ({
+  SearchCustomersPage: jest.fn(() => (
+    <div id="SearchCustomersPage"></div>
+  )),
+}));
+
+jest.mock("../src/components/CustomerForm", () => ({
   CustomerForm: jest.fn(() => (
     <div id="CustomerForm" />
   )),
 }));
 
-jest.mock("../src/AppointmentFormLoader", () => ({
-  AppointmentFormLoader: jest.fn(() => (
-    <div id="AppointmentFormLoader" />
+jest.mock("../src/components/CustomerSearch", () => ({
+  CustomerSearch: jest.fn(() => (
+    <div id="CustomerSearch" />
   )),
 }));
 
-jest.mock("../src/CustomerSearch", () => ({
-  CustomerSearch: jest.fn(() => (
-    <div id="CustomerSearch"> </div>
-  )),
-}));
+jest.mock(
+  "../src/components/AppointmentsDayViewLoader",
+  () => ({
+    AppointmentsDayViewLoader: jest.fn(() => (
+      <div id="#AppointmentsDayViewLoader"></div>
+    )),
+  })
+);
 
 describe("App", () => {
   beforeEach(() => {
@@ -48,21 +63,21 @@ describe("App", () => {
   });
 
   it("initially shows the AppointmentsDayViewLoader", () => {
-    render(<App />);
+    renderWithRouter(<App />);
 
     expect(AppointmentsDayViewLoader).toBeRendered();
   });
 
   it("has menu bar", () => {
-    render(<App />);
+    renderWithRouter(<App />);
 
     expect(element("menu")).not.toBeNull();
   });
 
-  it("has a button to initiate add customer and appointment", () => {
-    render(<App />);
+  it("has a link to initiate add customer and appointment", () => {
+    renderWithRouter(<App />);
     const addCustomerAppointmentBtn = element(
-      "menu > li > button:first-of-type"
+      "menu > li > a:first-of-type"
     );
 
     expect(addCustomerAppointmentBtn).toContainText(
@@ -76,17 +91,18 @@ describe("App", () => {
     );
   };
 
-  it("displays the CustomerForm when button is clicked", () => {
-    render(<App />);
+  it("renders CustomerForm at the /addCustomer endpoint", () => {
+    renderWithRouter(<App />, {
+      location: "/addCustomer",
+    });
 
-    beginAddCustomerAppointment();
     expect(element("#CustomerForm")).not.toBeNull();
   });
 
   it("passes a blank original customer object to CustomerForm", () => {
-    render(<App />);
-
-    beginAddCustomerAppointment();
+    renderWithRouter(<App />, {
+      location: "/addCustomer",
+    });
 
     expect(CustomerForm).toBeRenderedWithProps(
       expect.objectContaining({
@@ -95,20 +111,11 @@ describe("App", () => {
     );
   });
 
-  it("hides the AppointmentsDayViewLoader when button is clicked", () => {
-    render(<App />);
-
-    beginAddCustomerAppointment();
-
-    expect(
-      element("#AppointmentsDayViewLoader")
-    ).toBeNull();
-  });
-
   it("hides the button bar when button is clicked", () => {
-    render(<App />);
+    renderWithRouter(<App />, {
+      location: "/addCustomer",
+    });
 
-    beginAddCustomerAppointment();
     expect(element("menu")).toBeNull();
   });
 
@@ -121,127 +128,81 @@ describe("App", () => {
   };
 
   const saveAppointment = () =>
-    act(() =>
-      propsOf(AppointmentFormLoader).onSave()
-    );
-  it("displays the AppointmentFormLoader after the CustomerForm is submitted", async () => {
-    render(<App />);
-    beginAddCustomerAppointment();
-    saveCustomer();
-
-    expect(
-      element("#AppointmentFormLoader")
-    ).not.toBeNull();
-  });
-
-  it("passes a blank appointment object to the AppointmentFormLoader", async () => {
-    render(<App />);
-    beginAddCustomerAppointment();
-    saveCustomer();
-
-    expect(
-      AppointmentFormLoader
-    ).toBeRenderedWithProps({
-      original: expect.objectContaining({
-        ...blankAppointment,
-      }),
-      onSave: expect.anything(),
+    act(() => propsOf(AppointmentFormPage).onSave());
+  it("displays the AppointmentFormPage after the CustomerForm is submitted", async () => {
+    renderWithRouter(<App />, {
+      location: "/addCustomer",
     });
+
+    saveCustomer();
+
+    expect(
+      element("#AppointmentFormPage")
+    ).not.toBeNull();
   });
 
   it("passes the customer to the AppointmentForm", () => {
     const customer = { id: 123 };
 
-    render(<App />);
-    beginAddCustomerAppointment();
+    renderWithRouter(<App />, {
+      location: "/addCustomer",
+    });
+
     saveCustomer(customer);
 
-    expect(
-      AppointmentFormLoader
-    ).toBeRenderedWithProps(
-      expect.objectContaining({
-        original: {
-          ...blankAppointment,
-          customer: customer.id,
-        },
-        onSave: expect.anything(),
-      })
+    expect(history.location.search).toEqual(
+      "?customer=123"
     );
   });
 
-  it("renders AppointmentsDayViewLoader after AppointmentForm is submitted", () => {
-    render(<App />);
-    beginAddCustomerAppointment();
+  it("renders AppointmentFormPage after AppointmentForm is submitted", () => {
+    renderWithRouter(<App />, {
+      location: "/addCustomer",
+    });
+
     saveCustomer();
     saveAppointment();
 
-    expect(AppointmentsDayViewLoader).toBeRendered();
+    expect(AppointmentFormPage).toBeRendered();
   });
 
   describe("CustomerSearch", () => {
-    it("has a button to search customers", () => {
-      render(<App />);
-      const secondButton = element(
-        "menu li:nth-of-type(2) button"
+    it("has a link to search customers", () => {
+      renderWithRouter(<App />);
+      const secondLink = element(
+        "menu li:nth-of-type(2) a"
       );
 
-      expect(secondButton).not.toBeNull();
-      expect(secondButton).toContainText(
+      expect(secondLink).not.toBeNull();
+      expect(secondLink).toContainText(
         "Search customers"
       );
     });
 
-    const navigateToSearchCustomers = () =>
-      click(element("menu li:nth-of-type(2) button"));
-
     const searchFor = (customer) =>
-      propsOf(CustomerSearch).renderCustomerActions(
-        customer
-      );
+      propsOf(
+        SearchCustomersPage
+      ).renderCustomerActions(customer);
 
-    it("displays CustomerSearch when button is clicked", () => {
-      render(<App />);
-
-      navigateToSearchCustomers();
-
-      expect(CustomerSearch).toBeRendered();
-    });
-
-    it("passses a button to the CustomerSearch name Create Appointment", () => {
-      render(<App />);
-      navigateToSearchCustomers();
-
-      const buttonContainer = renderAdditional(
-        searchFor()
-      );
+    it("has /searchCustomers link", () => {
+      renderWithRouter(<App />);
 
       expect(
-        buttonContainer.firstChild
-      ).toBeElementWithTag("button");
-      expect(
-        buttonContainer.firstChild
-      ).toContainText("Create Appointment");
+        linkFor("/searchCustomers")
+      ).toBeDefined();
     });
 
-    it("clicking appointment button shows the appointment form for that customer", async () => {
+    it("clicking appointment link pass customer id", async () => {
       const customer = { id: 123 };
 
-      render(<App />);
+      renderWithRouter(<App />);
 
-      navigateToSearchCustomers();
-      const buttonContainer = renderAdditional(
-        searchFor(customer)
-      );
-
-      click(buttonContainer.firstChild);
+      click(linkFor("/searchCustomers"));
+      renderWithRouter(searchFor(customer));
 
       expect(
-        element("#AppointmentFormLoader")
-      ).not.toBeNull();
-
-      expect(
-        propsOf(AppointmentFormLoader).original
-      ).toMatchObject({ customer: 123 });
+        linkFor("/addAppointment?customer=123")
+      ).toBeDefined();
     });
   });
 });

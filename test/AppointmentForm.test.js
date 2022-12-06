@@ -18,7 +18,7 @@ import {
   change,
   clickAndWait,
 } from "./reactTestExtensions";
-import { AppointmentForm } from "../src/AppointmentForm";
+import { AppointmentForm } from "../src/components/AppointmentForm";
 
 describe("AppointmentForm", () => {
   let saveFn;

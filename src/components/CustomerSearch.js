@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { searchParams } from "./searchParams";
+import { searchParams } from "../searchParams";
 
 const CustomerRow = ({
   customer,

@@ -22,7 +22,7 @@ import {
   fetchResponseOk,
   fetchResponseError,
 } from "./builders/fetch";
-import { CustomerForm } from "../src/CustomerForm";
+import { CustomerForm } from "../src/components/CustomerForm";
 import {
   blankCustomer,
   validCustomer,

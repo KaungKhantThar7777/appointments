@@ -1,7 +1,7 @@
 import React from "react";
 
 import { fetchResponseOk } from "./builders/fetch";
-import { CustomerSearch } from "../src/CustomerSearch";
+import { CustomerSearch } from "../src/components/CustomerSearch";
 import {
   buttonWithLabel,
   changeAndWait,
