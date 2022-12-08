@@ -3,26 +3,20 @@ import { act } from "react-dom/test-utils";
 import {
   click,
   element,
-  initializeReactContainer,
-  render,
-  renderAndWait,
-  propsOf,
-  renderAdditional,
-  renderWithRouter,
   history,
-  elements,
+  initializeReactContainer,
   linkFor,
+  propsOf,
+  renderWithRouter,
 } from "./reactTestExtensions";
 
 import { App } from "../src/App";
 import { AppointmentsDayViewLoader } from "../src/components/AppointmentsDayViewLoader";
 import { CustomerForm } from "../src/components/CustomerForm";
-import { AppointmentFormLoader } from "../src/components/AppointmentFormLoader";
 import { blankCustomer } from "./builders/customer";
-import { blankAppointment } from "./builders/appointment";
 
-import { SearchCustomersPage } from "../src/pages/SearchCustomersPage";
 import { AppointmentFormPage } from "../src/pages/AppointmentFormPage";
+import { SearchCustomersPage } from "../src/pages/SearchCustomersPage";
 
 jest.mock("../src/pages/AppointmentFormPage", () => ({
   AppointmentFormPage: jest.fn(() => (
@@ -42,11 +36,14 @@ jest.mock("../src/components/CustomerForm", () => ({
   )),
 }));
 
-jest.mock("../src/components/CustomerSearch", () => ({
-  CustomerSearch: jest.fn(() => (
-    <div id="CustomerSearch" />
-  )),
-}));
+jest.mock(
+  "../src/components/CustomerSearch/CustomerSearch",
+  () => ({
+    CustomerSearch: jest.fn(() => (
+      <div id="CustomerSearch" />
+    )),
+  })
+);
 
 jest.mock(
   "../src/components/AppointmentsDayViewLoader",

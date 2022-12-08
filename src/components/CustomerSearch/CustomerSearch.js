@@ -4,7 +4,7 @@ import React, {
   useState,
 } from "react";
 import { searchParams } from "../../searchParams";
-import { RouterButton } from "../RouterButton";
+import { RouterButton } from "./RouterButton";
 import { SearchButtons } from "./SearchButtons";
 
 const CustomerRow = ({
@@ -25,16 +25,16 @@ const CustomerRow = ({
 
 export const CustomerSearch = ({
   renderCustomerActions,
+  lastRowIds,
+  searchTerm,
+  limit,
+  navigate,
 }) => {
   const [customers, setCustomers] = useState([]);
-  const [customerIds, setCustomerIds] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const after =
-        customerIds[customerIds.length - 1];
+      const after = lastRowIds[lastRowIds.length - 1];
 
       let queryString = searchParams({
         searchTerm,
@@ -56,22 +56,14 @@ export const CustomerSearch = ({
       setCustomers(customers);
     };
     fetchCustomers();
-  }, [customerIds, searchTerm, limit]);
-
-  const handleNext = useCallback(() => {
-    const customerId =
-      customers[customers.length - 1].id;
-
-    setCustomerIds([...customerIds, customerId]);
-  }, [customers]);
-
-  const handlePrevious = useCallback(() => {
-    setCustomerIds(customerIds.slice(0, -1));
-  }, [customerIds]);
+  }, [lastRowIds, searchTerm, limit]);
 
   const handleSearchTermChanged = ({
     target: { name, value },
-  }) => setSearchTerm(value);
+  }) => {
+    const params = { limit, searchTerm: value };
+    navigate(searchParams(params));
+  };
 
   return (
     <>
@@ -81,12 +73,10 @@ export const CustomerSearch = ({
         onChange={handleSearchTermChanged}
       />
       <SearchButtons
-        handleNext={handleNext}
-        handlePrevious={handlePrevious}
-        customerIds={customerIds}
+        lastRowIds={lastRowIds}
         customers={customers}
         limit={limit}
-        handleLimit={setLimit}
+        searchTerm={searchTerm}
       />
       <table>
         <thead>

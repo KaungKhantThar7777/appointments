@@ -8,12 +8,6 @@ export const SearchButtons = ({
   limit = 10,
   searchTerm,
 }) => {
-  console.log("props", {
-    lastRowIds,
-    customers,
-    limit,
-    searchTerm,
-  });
   const previousPageParams = useCallback(() => {
     return {
       limit,
@@ -48,7 +42,6 @@ export const SearchButtons = ({
     },
     [searchTerm, lastRowIds]
   );
-  console.log(limitPageParams(10));
 
   const hasPrevious = lastRowIds.length > 0;
   const hasNext = customers.length === limit;
