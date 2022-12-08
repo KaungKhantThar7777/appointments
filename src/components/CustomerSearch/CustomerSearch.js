@@ -3,7 +3,9 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { searchParams } from "../searchParams";
+import { searchParams } from "../../searchParams";
+import { RouterButton } from "../RouterButton";
+import { SearchButtons } from "./SearchButtons";
 
 const CustomerRow = ({
   customer,
@@ -18,61 +20,6 @@ const CustomerRow = ({
       <td>{phoneNumber}</td>
       <td>{renderCustomerActions(customer)}</td>
     </tr>
-  );
-};
-
-const ToggleButton = ({ onClick, value, limit }) => (
-  <button
-    onClick={() => onClick(value)}
-    className={value === limit ? "toggled" : ""}
-  >
-    {value}
-  </button>
-);
-
-const SearchButtons = ({
-  handleNext,
-  handlePrevious,
-  customerIds,
-  customers,
-  limit,
-  handleLimit,
-}) => {
-  return (
-    <menu>
-      {[10, 20, 30, 50].map((limitSize) => (
-        <li key={limitSize}>
-          <ToggleButton
-            value={limitSize}
-            limit={limit}
-            onClick={handleLimit}
-          />
-        </li>
-      ))}
-
-      <li>
-        <button
-          onClick={handlePrevious}
-          disabled={customerIds.length === 0}
-          className={
-            customerIds.length === 0 ? "disabled" : ""
-          }
-        >
-          Previous
-        </button>
-      </li>
-      <li>
-        <button
-          onClick={handleNext}
-          disabled={customers.length < limit}
-          className={
-            customers.length < limit ? "disabled" : ""
-          }
-        >
-          Next
-        </button>
-      </li>
-    </menu>
   );
 };
 

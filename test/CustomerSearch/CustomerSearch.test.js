@@ -1,6 +1,6 @@
 import React from "react";
 
-import { fetchResponseOk } from "./builders/fetch";
+import { fetchResponseOk } from "../builders/fetch";
 import { CustomerSearch } from "../src/components/CustomerSearch";
 import {
   buttonWithLabel,
@@ -9,11 +9,17 @@ import {
   element,
   elements,
   initializeReactContainer,
+  propsMatching,
   renderAndWait,
   textOf,
-} from "./reactTestExtensions";
-import { render } from "react-dom";
+} from "../reactTestExtensions";
+import { RouterButton } from "../../src/components/RouterButton";
 
+jest.mock("../src/components/RouterButton", () => ({
+  RouterButton: jest.fn(({ id, children }) => (
+    <div id={id}>{children}</div>
+  )),
+}));
 const oneCustomer = [
   {
     id: 1,
@@ -54,6 +60,7 @@ const twentyCustomers = Array.from(
     id: id,
   })
 );
+
 describe("CustomerSearch", () => {
   beforeEach(() => {
     initializeReactContainer();
@@ -61,6 +68,12 @@ describe("CustomerSearch", () => {
       .spyOn(global, "fetch")
       .mockResolvedValue(fetchResponseOk([]));
   });
+
+  const previousPageButtonProps = () =>
+    propsMatching(RouterButton, {
+      id: "previous-page",
+    });
+
   test("renders a table with four headings", async () => {
     await renderAndWait(<CustomerSearch />);
     const headings = elements("table th");
@@ -160,10 +173,10 @@ describe("CustomerSearch", () => {
     );
   });
 
-  it("has previous button", async () => {
+  it.only("has previous button", async () => {
     await renderAndWait(<CustomerSearch />);
 
-    expect(buttonWithLabel("Previous")).toBeDefined();
+    expect(previousPageButtonProps()).toBeDefined();
   });
 
   it("disable previous button when in the first page", async () => {

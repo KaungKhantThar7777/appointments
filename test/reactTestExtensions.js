@@ -71,6 +71,18 @@ export const linkFor = (href) =>
 
 export const form = (id) => element("form");
 
+export const propsMatching = (
+  mockComponent,
+  matching
+) => {
+  const [k, v] = Object.entries(matching)[0];
+  const calls = mockComponent.mock.calls.filter(
+    ([props]) => props[k] === v
+  );
+
+  return calls[calls.length - 1]?.[0];
+};
+
 export const field = (fieldName) =>
   form().elements[fieldName];
 
