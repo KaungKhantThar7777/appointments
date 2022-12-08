@@ -1,10 +1,11 @@
 import React, { useCallback } from "react";
 import { RouterButton } from "./RouterButton";
+import { ToggleRouterButton } from "./ToggleRouterButton";
 
 export const SearchButtons = ({
   lastRowIds,
   customers,
-  limit,
+  limit = 10,
   searchTerm,
 }) => {
   console.log("props", {
@@ -37,18 +38,34 @@ export const SearchButtons = ({
     };
   }, [searchTerm, lastRowIds, limit, customers]);
 
+  const limitPageParams = useCallback(
+    (newLimit) => {
+      return {
+        limit: newLimit,
+        searchTerm,
+        lastRowIds,
+      };
+    },
+    [searchTerm, lastRowIds]
+  );
+  console.log(limitPageParams(10));
+
   const hasPrevious = lastRowIds.length > 0;
+  const hasNext = customers.length === limit;
+
   return (
     <menu>
-      {/* {[10, 20, 30, 50].map((limitSize) => (
+      {[10, 20, 30, 50].map((limitSize) => (
         <li key={limitSize}>
-          <ToggleButton
-            value={limitSize}
-            limit={limit}
-            onClick={handleLimit}
-          />
+          <ToggleRouterButton
+            toggled={limitSize === limit}
+            id={`limit-${limitSize}`}
+            queryParams={limitPageParams(limitSize)}
+          >
+            {limitSize}
+          </ToggleRouterButton>
         </li>
-      ))} */}
+      ))}
 
       <li>
         <RouterButton
@@ -60,7 +77,11 @@ export const SearchButtons = ({
         </RouterButton>
       </li>
       <li>
-        <RouterButton queryParams={nextPageParams()}>
+        <RouterButton
+          id="next-page"
+          queryParams={nextPageParams()}
+          disabled={!hasNext}
+        >
           Next
         </RouterButton>
       </li>
