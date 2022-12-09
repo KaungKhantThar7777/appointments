@@ -6,10 +6,17 @@ export const RouterButton = ({
   queryParams,
   children,
   toggled,
+  disabled,
 }) => {
   return (
     <Link
-      className={toggled ? "toggled" : ""}
+      className={
+        disabled
+          ? "disabled"
+          : toggled
+          ? "toggled"
+          : ""
+      }
       role="button"
       to={{
         search: searchParams(queryParams),

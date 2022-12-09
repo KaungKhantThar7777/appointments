@@ -3,7 +3,7 @@ import { RouterButton } from "./RouterButton";
 import { ToggleRouterButton } from "./ToggleRouterButton";
 
 export const SearchButtons = ({
-  lastRowIds,
+  lastRowIds = [],
   customers,
   limit = 10,
   searchTerm,

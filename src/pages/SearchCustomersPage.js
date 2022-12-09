@@ -3,7 +3,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import { CustomerSearch } from "../components/CustomerSearch";
+import { CustomerSearch } from "../components/CustomerSearch/CustomerSearch";
 
 const convertParams = () => {
   const [params] = useSearchParams();
@@ -15,10 +15,11 @@ const convertParams = () => {
     obj.limit = parseInt(params.get("limit"), 10);
   }
   if (params.has("lastRowIds")) {
-    obj.lastRowIds = params
-      .get("lastRowIds")
-      .split(",")
-      .filter((id) => id !== "");
+    obj.lastRowIds =
+      params
+        .get("lastRowIds")
+        .split(",")
+        .filter((id) => id !== "") || [];
   }
   return obj;
 };
