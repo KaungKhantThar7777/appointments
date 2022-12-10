@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import {
+  useDispatch,
+  useSelector,
+} from "react-redux";
+import {
   anyErrors,
   hasFieldError,
   list,
@@ -19,15 +23,24 @@ const Error = ({ hasError }) => {
   );
 };
 
-export const CustomerForm = ({
-  original,
-  onSave,
-}) => {
+export const CustomerForm = ({ original }) => {
+  const dispatch = useDispatch();
+
+  const {
+    error,
+    validationErrors: serverValidationErrors,
+    status,
+  } = useSelector(({ customer }) => customer);
+
   const [customer, setCustomer] = useState(original);
-  const [hasError, setHasError] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const submitting = status === "SUBMITTING";
   const [validationErrors, setValidationErrors] =
     useState({});
+
+  const addCustomerRequest = (customer) => ({
+    type: "ADD_CUSTOMER_REQUEST",
+    payload: customer,
+  });
 
   const validators = {
     firstName: required("First name is required"),
@@ -67,7 +80,6 @@ export const CustomerForm = ({
   };
 
   const doSubmit = async () => {
-    setSubmitting(true);
     const result = await global.fetch("/customers", {
       method: "POST",
       credentials: "same-origin",
@@ -77,18 +89,13 @@ export const CustomerForm = ({
       body: JSON.stringify(customer),
     });
 
-    setSubmitting(false);
-
     if (result.ok) {
-      const customerWithId = await result.json();
-      setHasError(false);
-      onSave(customerWithId);
+      await result.json();
     } else if (result.status === 422) {
       const response = await result.json();
 
       setValidationErrors(response.errors);
     } else {
-      setHasError(true);
     }
   };
 
@@ -101,22 +108,28 @@ export const CustomerForm = ({
 
     if (!anyErrors(validationResult)) {
       await doSubmit();
+      dispatch(addCustomerRequest(customer));
     } else {
       setValidationErrors(validationResult);
     }
-    setSubmitting(false);
   };
 
-  const renderError = (fieldName) => (
-    <span id={`${fieldName}Error`} role="alert">
-      {hasFieldError(validationErrors, fieldName)
-        ? validationErrors[fieldName]
-        : " "}
-    </span>
-  );
+  const renderError = (fieldName) => {
+    const allValidationErrors = {
+      ...validationErrors,
+      ...serverValidationErrors,
+    };
+    return (
+      <span id={`${fieldName}Error`} role="alert">
+        {hasFieldError(allValidationErrors, fieldName)
+          ? allValidationErrors[fieldName]
+          : " "}
+      </span>
+    );
+  };
   return (
     <form onSubmit={handleSubmit}>
-      <Error hasError={hasError} />
+      <Error hasError={error} />
       <label htmlFor="firstName">First name</label>
       <input
         type="text"

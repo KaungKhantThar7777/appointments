@@ -1,17 +1,19 @@
 import React from "react";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
+
 import { App } from "./App";
 import { configureStore } from "./store";
+import { appHistory } from "./history";
 
 ReactDOM.createRoot(
   document.getElementById("root")
 ).render(
   <Provider store={configureStore()}>
-    <BrowserRouter>
+    <HistoryRouter history={appHistory}>
       <App />
-    </BrowserRouter>
+    </HistoryRouter>
   </Provider>
 );
 

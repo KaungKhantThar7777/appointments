@@ -11,14 +11,7 @@ import { HomePage } from "./pages/HomePage";
 import { SearchCustomersPage } from "./pages/SearchCustomersPage";
 
 export const App = () => {
-  const [view, setView] = useState("dayView");
-  const [customer, setCustomer] = useState();
-
   const navigate = useNavigate();
-
-  const transitionToAddCustomer = useCallback(() => {
-    setView("addCustomer");
-  }, []);
 
   const transitionToAddAppointment = useCallback(
     (customer) => {
@@ -34,19 +27,10 @@ export const App = () => {
       navigate("/");
     }, []);
 
-  const transitionTod = useCallback(() => {
-    setView("searchCustomers");
-  }, []);
   const blankCustomer = {
     firstName: "",
     lastName: "",
     phoneNumber: "",
-  };
-
-  const blankAppointment = {
-    service: "",
-    stylist: "",
-    startsAt: null,
   };
 
   const searchActions = (customer) => {
@@ -64,10 +48,7 @@ export const App = () => {
       <Route
         path="/addCustomer"
         element={
-          <CustomerForm
-            original={blankCustomer}
-            onSave={transitionToAddAppointment}
-          />
+          <CustomerForm original={blankCustomer} />
         }
       />
       <Route
