@@ -263,24 +263,6 @@ describe("CustomerForm", () => {
   });
 
   describe("when POST request returns an error", () => {
-    beforeEach(() => {
-      global.fetch.mockResolvedValueOnce(
-        fetchResponseError()
-      );
-    });
-
-    it("does not notify onSave if the POST request returns an error", async () => {
-      const saveSpy = jest.fn();
-      renderWithStore(
-        <CustomerForm
-          original={validCustomer}
-          onSave={saveSpy}
-        />
-      );
-      await clickAndWait(submitButton());
-      expect(saveSpy).not.toBeCalled();
-    });
-
     it("renders error message when fetch call fails", () => {
       renderWithStore(
         <CustomerForm original={validCustomer} />

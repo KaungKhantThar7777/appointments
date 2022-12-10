@@ -79,26 +79,6 @@ export const CustomerForm = ({ original }) => {
     validate(name, value);
   };
 
-  const doSubmit = async () => {
-    const result = await global.fetch("/customers", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(customer),
-    });
-
-    if (result.ok) {
-      await result.json();
-    } else if (result.status === 422) {
-      const response = await result.json();
-
-      setValidationErrors(response.errors);
-    } else {
-    }
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     const validationResult = validateMany(
@@ -107,7 +87,6 @@ export const CustomerForm = ({ original }) => {
     );
 
     if (!anyErrors(validationResult)) {
-      await doSubmit();
       dispatch(addCustomerRequest(customer));
     } else {
       setValidationErrors(validationResult);
