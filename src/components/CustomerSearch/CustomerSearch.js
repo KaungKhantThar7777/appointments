@@ -34,7 +34,8 @@ export const CustomerSearch = ({
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const after = lastRowIds[lastRowIds.length - 1];
+      const after =
+        lastRowIds?.[lastRowIds?.length - 1];
 
       let queryString = searchParams({
         searchTerm,
