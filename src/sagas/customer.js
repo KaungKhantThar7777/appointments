@@ -28,6 +28,7 @@ export function* addCustomer({ payload }) {
     yield put({
       type: "ADD_CUSTOMER_SUCCESSFUL",
       payload: customerWithId,
+      error: false,
     });
 
     appHistory.push(

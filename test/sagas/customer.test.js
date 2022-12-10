@@ -65,7 +65,7 @@ describe("addCustomer", () => {
     );
   });
 
-  it("dispatches ADD_CUSTOMER_SUCCESSFUL on success", () => {
+  it("dispatches ADD_CUSTOMER_SUCCESSFUL sure that error is false", () => {
     store.dispatch(addCustomerRequest());
 
     return expectRedux(store)
@@ -73,6 +73,7 @@ describe("addCustomer", () => {
       .matching({
         type: "ADD_CUSTOMER_SUCCESSFUL",
         payload: customer,
+        error: false,
       });
   });
 
