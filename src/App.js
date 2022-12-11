@@ -7,20 +7,12 @@ import {
 } from "react-router-dom";
 import { CustomerForm } from "./components/CustomerForm";
 import { AppointmentFormPage } from "./pages/AppointmentFormPage";
+import { CustomerHistoryPage } from "./pages/CustomerHistoryPage";
 import { HomePage } from "./pages/HomePage";
 import { SearchCustomersPage } from "./pages/SearchCustomersPage";
 
 export const App = () => {
   const navigate = useNavigate();
-
-  const transitionToAddAppointment = useCallback(
-    (customer) => {
-      navigate(
-        `/addAppointment?customer=${customer.id}`
-      );
-    },
-    []
-  );
 
   const transitionToAppointmentsDayView =
     useCallback(() => {
@@ -35,11 +27,19 @@ export const App = () => {
 
   const searchActions = (customer) => {
     return (
-      <Link
-        to={`/addAppointment?customer=${customer?.id}`}
-      >
-        Create Appointment
-      </Link>
+      <>
+        <Link
+          to={`/addAppointment?customer=${customer?.id}`}
+        >
+          Create Appointment
+        </Link>
+
+        <Link
+          to={`/viewHistory?customer=${customer.id}`}
+        >
+          View history
+        </Link>
+      </>
     );
   };
   return (
@@ -66,6 +66,10 @@ export const App = () => {
             renderCustomerActions={searchActions}
           />
         }
+      />
+      <Route
+        path="/viewHistory"
+        element={<CustomerHistoryPage />}
       />
     </Routes>
   );

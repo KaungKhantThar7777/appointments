@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "React";
+import React, { useEffect, useState } from "react";
 
 import { fetchQuery, graphql } from "relay-runtime";
-import { getEnvironment } from "./relayEnvironment";
+import { getEnvironment } from "../relayEnvironment";
 
 export const query = graphql`
   query CustomerHistoryQuery($id: ID!) {
@@ -21,7 +21,9 @@ export const query = graphql`
 `;
 
 const toTimeString = (startsAt) =>
-  new Date(startsAt).toString().substring(0, 21);
+  new Date(Number(startsAt))
+    .toString()
+    .substring(0, 21);
 
 const AppointmentRow = ({ appointment }) => {
   return (

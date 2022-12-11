@@ -6,7 +6,7 @@ import { fetchQuery } from "relay-runtime";
 import {
   CustomerHistory,
   query,
-} from "../src/CustomerHistory";
+} from "../src/components/CustomerHistory";
 import { getEnvironment } from "../src/relayEnvironment";
 
 import {

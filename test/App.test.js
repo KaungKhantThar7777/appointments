@@ -1,8 +1,8 @@
 import React from "react";
-import { act } from "react-dom/test-utils";
 import {
   click,
   element,
+  elements,
   history,
   initializeReactContainer,
   linkFor,
@@ -15,7 +15,6 @@ import { AppointmentsDayViewLoader } from "../src/components/AppointmentsDayView
 import { CustomerForm } from "../src/components/CustomerForm";
 import { blankCustomer } from "./builders/customer";
 
-import { AppointmentFormPage } from "../src/pages/AppointmentFormPage";
 import { SearchCustomersPage } from "../src/pages/SearchCustomersPage";
 
 jest.mock("../src/pages/AppointmentFormPage", () => ({
@@ -49,10 +48,16 @@ jest.mock(
   "../src/components/AppointmentsDayViewLoader",
   () => ({
     AppointmentsDayViewLoader: jest.fn(() => (
-      <div id="#AppointmentsDayViewLoader"></div>
+      <div id="AppointmentsDayViewLoader"></div>
     )),
   })
 );
+
+jest.mock("../src/pages/CustomerHistoryPage", () => ({
+  CustomerHistoryPage: jest.fn(({ children }) => (
+    <div id="CustomerHistoryPage">{children}</div>
+  )),
+}));
 
 describe("App", () => {
   beforeEach(() => {
@@ -90,6 +95,15 @@ describe("App", () => {
     expect(element("#CustomerForm")).not.toBeNull();
   });
 
+  it("renders CustomerHistory at the /viewHistory endpoint", () => {
+    renderWithRouter(<App />, {
+      location: "/viewHistory",
+    });
+
+    expect(
+      element("#CustomerHistoryPage")
+    ).not.toBeNull();
+  });
   it("passes a blank original customer object to CustomerForm", () => {
     renderWithRouter(<App />, {
       location: "/addCustomer",
@@ -147,6 +161,35 @@ describe("App", () => {
       expect(
         linkFor("/addAppointment?customer=123")
       ).toBeDefined();
+    });
+
+    it("has link for viewing history", async () => {
+      const customer = { id: 123 };
+
+      renderWithRouter(<App />);
+
+      click(linkFor("/searchCustomers"));
+      renderWithRouter(searchFor(customer));
+
+      expect(
+        linkFor("/viewHistory?customer=123")
+      ).toBeDefined();
+    });
+
+    it("clicking viewing history render CustomerHistoryPage", async () => {
+      const customer = { id: 123 };
+
+      renderWithRouter(<App />);
+
+      click(linkFor("/searchCustomers"));
+      renderWithRouter(searchFor(customer));
+
+      click(linkFor("/viewHistory?customer=123"));
+      renderWithRouter(<App />);
+
+      expect(
+        element("#CustomerHistoryPage")
+      ).not.toBeNull();
     });
   });
 });
